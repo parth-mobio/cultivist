@@ -255,7 +255,7 @@ $(document).ready(function () {
         
     }
     });
-    //Close the alert messages in 3 seconds
+    //Close the alert messages in 5 seconds
 		$(".close-alert-message").on("click", function() {
 			$('.alert-message').hide();
 		});

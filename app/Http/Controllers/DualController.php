@@ -121,7 +121,7 @@ class DualController extends Controller
 
     $dual_lead_data = json_encode($duallead_data);
     // dd($dual_lead_data);
-    $curl = curlResponse($dual_lead_data, $token, Config::get("constants.base_URL") . Config::get("constants.create_lead_API_name"),Config::get("constants.CURLOPT_HTTPHEADER.individual_dual_BrowserId"));
+    $curl = curlResponse($dual_lead_data, $token, Config::get("constants.base_URL") . Config::get("constants.create_lead_API_name"),Config::get("constants.curlopt_httpheader.individual_dual_browser_id"));
 
     $dual_lead_response = curl_exec($curl);
     $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
