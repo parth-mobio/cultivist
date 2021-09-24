@@ -255,6 +255,13 @@ $(document).ready(function () {
         
     }
     });
+    //Close the alert messages in 3 seconds
+		$(".close-alert-message").on("click", function() {
+			$('.alert-message').hide();
+		});
+		setTimeout(function() {
+			$('.alert-message').fadeOut('fast');
+		}, 5000);
 });
 </script>
     <script type="text/javascript">
