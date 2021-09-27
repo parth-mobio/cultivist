@@ -62,7 +62,7 @@ $handle  = ($value['handle']);
 												@if ($message = Session::get('error'))
 												<div class="alert alert-danger alert-block alert-message">
 													<strong>{{ $message }}</strong>
-													<button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert" style="margin-left: 42%;">×</button>
+													<button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert" style="margin-left: 23%;">×</button>
 												</div>
 												@endif
 												<label class="form-label" for="email">Email</label>

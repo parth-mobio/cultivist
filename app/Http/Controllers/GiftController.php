@@ -156,7 +156,6 @@ class GiftController extends Controller
 		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		curl_close($curl);
 		$gift_lead_response;
-		// dd($gift_lead_response);
 		$lead_datas = json_decode($gift_lead_response, true);
 		if ($http_status == Config::get('constants.status_error_code')) {
 			return redirect('/')->with('error', $lead_datas['message']);
@@ -243,7 +242,7 @@ class GiftController extends Controller
 			$datas['product_name'] = $request->product_name;
 			$customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 		} else {
-			// $data = json_decode($response,true);  
+			// $data = json_decode($response,true);
 			$request->customer_id  = $data['0']['customer']['id'];
 
 			$data_json = json_decode($response, true);
@@ -587,7 +586,7 @@ class GiftController extends Controller
 
 				curl_close($curl);
 				$gift_member_response;
-				// dd($gift_member_response);   
+				// dd($gift_member_response);
 				/* END */
 				return redirect('/success');
 			}
