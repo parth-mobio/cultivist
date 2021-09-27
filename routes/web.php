@@ -10,31 +10,18 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-/*
-<<<<<<< HEAD
-Route::get('/sdsd', function () {
-    return view('thank_you');
-}); // test
-*/
+
 
 Route::get('/','TestController@index');
-//Route::post('individual-post','TestController@individual');
-Route::post('individual-post','IndividialController@individual');
-Route::post('individual_checkout','IndividialController@individual_checkout');
-//Route::post('individual_checkout','TestController@individual_checkout');
-//Route::post('dual-post','TestController@dual');
-//Route::post('dual_checkout','TestController@dual_checkout');
-Route::post('dual-post','DualController@dual');
-Route::post('dual_checkout','DualController@dual_checkout');
-
-//Route::post('coupen_check','TestController@check_coupen');
-//Route::post('gifting','TestController@gifting');
-//Route::post('gift_checkout','TestController@gift_checkout');
-Route::post('coupen_check','GiftController@check_coupen');
-Route::post('gifting','GiftController@gifting');
-Route::post('gift_checkout','GiftController@gift_checkout');
-Route::get('success','GiftController@success');
-Route::post('form-submit','GiftController@formsubmit');
+Route::post('individual-post','TestController@individual');
+Route::post('individual_checkout','TestController@individual_checkout');
+Route::post('dual-post','TestController@dual');
+Route::post('dual_checkout','TestController@dual_checkout');
+Route::post('coupen_check','TestController@check_coupen');
+Route::post('gifting','TestController@gifting');
+Route::post('gift_checkout','TestController@gift_checkout');
+Route::get('success','TestController@success');
+Route::post('form-submit','TestController@formsubmit');
 
 
 Auth::routes();

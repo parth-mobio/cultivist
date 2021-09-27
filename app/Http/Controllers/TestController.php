@@ -44,6 +44,11 @@ class TestController extends Controller
         }
         
         $response = json_decode($response, true);
+
+      //  echo '<pre>';
+      //  print_r($response);
+     //   dd($response);
+       // dd($response[0]['subscription']['product']['name']);
         $data = [];
         foreach ($response as $key => $value)
         {
@@ -99,6 +104,12 @@ class TestController extends Controller
 
         $country = Country::orderBy('name','ASC')->get();
         $frequently = Country::orderBy('counts','DESC')->limit(4)->get();
+
+        
+        
+      //  dd($country);
+      ///  if($response == "[]")
+      //  {
            
            $customer = new customer();
            $customer->email = $request->email;
