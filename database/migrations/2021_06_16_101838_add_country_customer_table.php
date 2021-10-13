@@ -26,7 +26,9 @@ class AddCountryCustomerTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn('country_val');
-        $table->dropColumn('country');
+        Schema::table('customer', function (Blueprint $table) {
+            $table->dropColumn('country_val');
+            $table->dropColumn('country');
+        });
     }
 }

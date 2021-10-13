@@ -10,7 +10,12 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+/*
+<<<<<<< HEAD
+Route::get('/sdsd', function () {
+    return view('thank_you');
+}); // test
+*/
 
 Route::get('/','TestController@index');
 Route::post('individual-post','TestController@individual');

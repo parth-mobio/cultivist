@@ -207,7 +207,7 @@
                         
                     </div>
 
-                  <div class="row gx-2 py-3">
+<!--                  <div class="row gx-2 py-3">
                     <div class="col-12 h6 fw-bold mb-2">Payment Method</div>
                     <div class="col-12 col-sm-6 col-xl-5 pb-4"></div>
                     <div class="col-12 col-sm-6 col-xl-5">
@@ -222,8 +222,8 @@
                     </div>
                     <div class="col-12 col-sm-2 d-none d-md-block">
                       <!--<img src="{{ asset('/') }}images/card-img.png" alt="">-->
-                    </div>
-                  </div>  
+                <!--    </div>
+                  </div>-->
 
                   <div class="row gx-2 pb-3 credit_card">
                     <div class="col-12 mb-2">
@@ -337,9 +337,7 @@
                   </div>
                   <div class="pt-4">
                     <button type="submit" id="placed" class="btn btn-dark w-210">Place Secure Order</button>
-                    
                   </div>
-                  <button id="apple-pay-button">Apple pay</button>
                 </form>
               </div>
             </div>
@@ -347,52 +345,4 @@
         </div>
       </section>
     </main>
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>  
-<script type="text/javascript">
-  Stripe.setPublishableKey('pk_live_5RMe6YAICkulvCpVtQ52vUNf');
-
-Stripe.applePay.checkAvailability(function(available) {
-  if (available) {
-    document.getElementById('apple-pay-button').style.display = 'block';
-  }
-});
-
-document.getElementById('apple-pay-button').addEventListener('click', beginApplePay);
-
-var price ="{{$data['product_price']}}";
- var id ="{{$data['product_id']}}";
- var url = "{{$data['url']}}";
-
-function beginApplePay() {
-  var paymentRequest = {
-    countryCode: 'US',
-    currencyCode: 'USD',
-    total: {
-      label: 'Rocketship Inc',
-      amount: price
-    }
-  };
-  var session = Stripe.applePay.buildSession(paymentRequest,
-    function(result, completion) {
-
-    $.post(url, { token: result.token.id }).done(function() {
-      completion(ApplePaySession.STATUS_SUCCESS);
-      // You can now redirect the user to a receipt page, etc.
-      window.location.href = "{{URL::asset('success')}}";
-    }).fail(function() {
-      completion(ApplePaySession.STATUS_FAILURE);
-    });
-
-  }, function(error) {
-    console.log(error.message);
-  });
-
-  session.oncancel = function() {
-    console.log("User hit the cancel button in the payment window");
-  };
-
-  session.begin();
-}
-
-</script>        
 @endsection

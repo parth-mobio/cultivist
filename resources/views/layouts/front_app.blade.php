@@ -7,20 +7,6 @@
 }
 .loader{ position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 9; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.7);}
 </style>
-<style type="text/css">
-  #apple-pay-button {
-    display: none;
-    background-color: black;
-    background-image: -webkit-named-image(apple-pay-logo-white);
-    background-size: 100% 100%;
-    background-origin: content-box;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 44px;
-    padding: 10px 0;
-    border-radius: 10px;
-  }
-</style>
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -40,7 +26,6 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('/') }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('/') }}css/style.css">
   </head>
-  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-71079941-22"></script>
   <script>
   window.dataLayer = window.dataLayer || [];
@@ -85,7 +70,7 @@
 $(document).ready(function () {
     //var check_radio  = $("input:radio[name='no']:checked").val();
 
-
+    
     $('#contact_form').validate({ // initialize the plugin
         rules: {
             email: {
@@ -97,7 +82,7 @@ $(document).ready(function () {
             },
             last_name: {
                 required: true,
-
+                
             },
             phone_number:{
                 required: true,
@@ -105,7 +90,7 @@ $(document).ready(function () {
             },
         }
     });
-
+    
     $('#dual_form').validate({ // initialize the plugin
         rules: {
             email: {
@@ -117,7 +102,7 @@ $(document).ready(function () {
             },
             last_name: {
                 required: true,
-
+                
             },
             phone_number:{
                 required: true,
@@ -132,7 +117,7 @@ $(document).ready(function () {
             },
             detail_02_last_name: {
                 required: true,
-
+                
             },
             detail_02_phone_number:{
                 required: true,
@@ -153,35 +138,35 @@ $(document).ready(function () {
             },
             Lastnamegift: {
                 required: true,
-
+                
             },
             Startdategift: {
                 required: '#no[value="no"]:checked',
                 date:true,
-
+                
             },
         },
         messages: {
-            Startdategift: 'Please select a date',
+            Startdategift: 'Please select a date',   
         },
-    });
+    });   
 
     $('#checkout_form').validate({ // initialize the plugin
         rules: {
             shipping_address: {
                 required: true,
-
+                
             },
             shipping_city: {
                 required: true,
             },
             shipping_zipcode: {
                 required: true,
-
+                
             },
             shipping_country:{
                 required: true,
-
+                
             },
             shipping_state:{
                 required:true,
@@ -248,20 +233,13 @@ $(document).ready(function () {
          errorPlacement: function(error, element) {
         if (element.attr("name") == "tnc" )
             error.insertAfter("#tnc_msg");
-        else if  (element.attr("name") == "tnc_p" )
+        else if  (element.attr("name") == "tnc_p" )    
             error.insertAfter("#tnc_p_msg");
         else  // This is the default behavior of the script for all fields
             error.insertAfter( element );
-
+        
     }
     });
-    //Close the alert messages in 5 seconds
-		$(".close-alert-message").on("click", function() {
-			$('.alert-message').hide();
-		});
-		setTimeout(function() {
-			$('.alert-message').fadeOut('fast');
-		}, 5000);
 });
 </script>
     <script type="text/javascript">
@@ -269,55 +247,55 @@ $(document).ready(function () {
             minDate: new Date(),
             maxDate: new Date(new Date().setMonth(new Date().getMonth() + 3)),
         onSelect: function(dateText, inst) {
-            $('#start_date').val(dateText);
-            //alert( $('#start_date').val());
-        }
-      });
+            $('#start_date').val(dateText);    
+            //alert( $('#start_date').val()); 
+        } 
+      });   
     </script>
 
     <script type="text/javascript">
-
-  $(document).ready(function(){
-
+  
+  $(document).ready(function(){ 
+    
     $("input[name='payment']").click(function() {
-
+       
         var test = $(this).val();
         if(test == 'no')
         {
           $(".billing_address").hide();
-          //$("#"+test).show();
+          //$("#"+test).show();  
         }
         else
         {
           $(".billing_address").show();
-        }
-
+        }  
+       
     });
 
     $("input[name='payment_method']").click(function() {
-
+       
         var test1 = $(this).val();
         if(test1 == 'apple_pay')
         {
           $(".credit_card").hide();
-          //$("#"+test).show();
+          //$("#"+test).show();  
         }
         else
         {
           $(".credit_card").show();
-        }
-
+        }  
+       
     });
-  });
-
+  });  
+    
     $(document).ready(function () {
-        $('.year').click(function () {
+        $('.year').click(function () { 
             var price = $(this).attr('data-value');
             var pay_name = $(this).attr('data-name');
             var snap_day = $(this).attr('data-interval');
-            var uk_price_y = $(this).attr('data-uk');
+            var uk_price_y = $(this).attr('data-uk'); 
             var gbp_price_y = $(this).attr('data-gbp');
-
+            
             $('#pro_price').val('');
             $('#pro_price').val(price);
             $('#payment_name').val('');
@@ -328,13 +306,13 @@ $(document).ready(function () {
             $('#gbp_product_price').val(gbp_price_y);
             $('#uk_price_point_id').val('957322');
             $('#gbp_price_point_id').val('1197863');
+            
+        }); 
 
-        });
-
-        $('.month').click(function () {
+        $('.month').click(function () { 
             var price1 = $(this).attr('data-value');
-            var pay_name1 = $(this).attr('data-name');
-            var snap_day = $(this).attr('data-interval');
+            var pay_name1 = $(this).attr('data-name'); 
+            var snap_day = $(this).attr('data-interval'); 
             var uk_price_m = $(this).attr('data-uk');
             var gbp_price_m = $(this).attr('data-gbp');
 
@@ -352,7 +330,7 @@ $(document).ready(function () {
           //  alert($('#gbp_product_price').val());
         });
 
-        $('.year_g').click(function () {
+        $('.year_g').click(function () { 
             var price = $(this).attr('data-value');
             var pay_name2 = $(this).attr('data-name');
             var snap_day_g = $(this).attr('data-interval');
@@ -371,12 +349,12 @@ $(document).ready(function () {
             $('#gbp_price_point_id_g').val('1197866');
            // alert($('#uk_price_point_id').val());
            // alert($('#price_point_id_g').val());
-        });
+        }); 
 
-        $('.month_g').click(function () {
+        $('.month_g').click(function () { 
             var price1 = $(this).attr('data-value');
             var pay_name3 = $(this).attr('data-name');
-            var snap_day_g = $(this).attr('data-interval');
+            var snap_day_g = $(this).attr('data-interval'); 
 
 
             $('#price_point_id_g').val('1188338');
@@ -387,13 +365,13 @@ $(document).ready(function () {
         //    $('#price_point_id_g').val('1188338');
             $('#snap_day_g').val(snap_day_g);
            // alert($('#payment_name_g').val());
-        });
+        });    
 
-         $('.year_d').click(function () {
+         $('.year_d').click(function () { 
             var price = $(this).attr('data-value');
-            var pay_name4 = $(this).attr('data-name');
+            var pay_name4 = $(this).attr('data-name'); 
             var snap_day_d = $(this).attr('data-interval');
-            var uk_price_d = $(this).attr('data-uk');
+            var uk_price_d = $(this).attr('data-uk'); 
             var gbp_price_d = $(this).attr('data-gbp');
 
             $('#price_point_id_d').val('1188336');
@@ -405,16 +383,16 @@ $(document).ready(function () {
             $('#gbp_product_price_d').val(gbp_price_d);
             $('#uk_price_point_id_d').val('1196439');
             $('#gbp_price_point_id_d').val('1197868');
-
+            
            // alert($('#gbp_product_price_d').val());
           //  alert($('#price_point_id_d').val());
-        });
+        }); 
 
-        $('.month_d').click(function () {
+        $('.month_d').click(function () { 
             var price3 = $(this).attr('data-value');
             var pay_name5 = $(this).attr('data-name');
-            var snap_day_d = $(this).attr('data-interval');
-            var uk_price_d_m = $(this).attr('data-uk');
+            var snap_day_d = $(this).attr('data-interval');  
+            var uk_price_d_m = $(this).attr('data-uk'); 
             var gbp_price_d_m = $(this).attr('data-gbp');
            // alert(price2);
             $('#price_point_id_d').val('1188337');
@@ -428,9 +406,9 @@ $(document).ready(function () {
             $('#uk_price_point_id_d').val('1196441');
             $('#gbp_price_point_id_d').val('1197867');
            //alert($('#uk_price_point_id_d').val());
-        });
-
-
+        });    
+        
+      
     var   country = ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IS','IE','IT','LV','LI','LT','LU','MT','MC','NL','NO','PL','PT','RO','SK','ES','SE','CH'];
         $('.ship_country').change(function() {
             var val = $(this).val();
@@ -461,21 +439,21 @@ $(document).ready(function () {
                 $('.total_price').text('€'+product_price);
                 $('#currency').val('EUR');
               // alert($('#checkout_product_id').val());
-            }
+            }    
             else{
                 var def_product_id = $('#default_product_id').val();
                 var def_point_id   = $('#default_product_price_point_id').val();
                 var def_product_price = $('#default_product_price').val();
                                  $('#checkout_product_id').val(def_product_id);
-                                 $('#product_price_point_id').val(def_point_id);
-                                 $('#product_price').val(def_product_price);
+                                 $('#product_price_point_id').val(def_point_id); 
+                                 $('#product_price').val(def_product_price);  
                                  $('.price').text('$'+def_product_price);
                                  $('.total_price').text('$'+def_product_price);
-                                 $('#currency').val('USD');
+                                 $('#currency').val('USD');   
                 //                 alert($('#checkout_product_id').val());
-            }
-        });
-    });
+            } 
+        });    
+    }); 
 
 </script>
 <?php $check_coupen = URL::asset('coupen_check'); ?>
@@ -483,11 +461,11 @@ $(document).ready(function () {
 $(document).ready(function () {
 
     $(document).on('click', "#apply", function () {
-
+        
         var coupen_code  = $('#promosGifts').val();
         var currency  = $('#currency').val();
-
-
+        
+    
 
                 $.ajax({
                 type: 'POST',
@@ -502,40 +480,41 @@ $(document).ready(function () {
                     {
                         if(data.percentage != null || data.percentage !="")
                         {
+                        
                             $('#error_msg').css('display','none');
                             $("#success_msg").css('display','block');
-                            $("#success_msg").text(data.message);
+                            $("#success_msg").text(data.message);    
                             var total = $('#product_price').val();
                             var percentage = data.percentage;
                             var discount = ((total * percentage)/100);
-                            var total_price = (total - discount);
+                            var total_price = (total - discount);   
                             if(data.type == "GBP")
                             {
                                 $('#discount_name').css('display','block');
                                 $('#disc_amount').text("£"+discount);
                                 $('#disc_amount').css('display','inline-block');
-                                $('.total_price').text("£"+total_price);
+                                $('.total_price').text("£"+total_price);        
                             }
                             else if(data.type == "EUR")
                             {
                                 $('#discount_name').css('display','block');
                                 $('#disc_amount').text("€"+discount);
                                 $('#disc_amount').css('display','inline-block');
-                                $('.total_price').text("€"+total_price);
+                                $('.total_price').text("€"+total_price);    
                             }
                             else
-                            {
+                            {    
                                 $('#discount_name').css('display','block');
                                 $('#disc_amount').text("$"+discount);
                                 $('#disc_amount').css('display','inline-block');
-                                $('.total_price').text("$"+total_price);
-                            }
+                                $('.total_price').text("$"+total_price);    
+                            }    
                         }
                         else
                         {
-                            $('#error_msg').css('display','none');
+                            $('#error_msg').css('display','none');    
                             $("#success_msg").css('display','block');
-                            $("#success_msg").text(data.message);
+                            $("#success_msg").text(data.message);    
                             var total = $('#product_price').val();
                             var percentage = data.percentage;
                             var discount_amt = (data.amount /100);
@@ -546,7 +525,7 @@ $(document).ready(function () {
                             $('#discount_name').css('display','block');
                             $('#disc_amount').text("£"+discount_amt);
                             $('#disc_amount').css('display','inline-block');
-
+                            
                             $('.total_price').text("£"+total_price);
                          }
                          else if(data.type == "EUR")
@@ -554,26 +533,26 @@ $(document).ready(function () {
                             $('#discount_name').css('display','block');
                             $('#disc_amount').text("€"+discount_amt);
                             $('#disc_amount').css('display','inline-block');
-
+                            
                             $('.total_price').text("€"+total_price);
-                         }
+                         }   
                          else
-                         {
+                         {   
                             $('#discount_name').css('display','block');
                             $('#disc_amount').text("$"+discount_amt);
                             $('#disc_amount').css('display','inline-block');
-
+                            
                             $('.total_price').text("$"+total_price);
-                         }
-                        }
-
+                         }          
+                        }    
+                        
                         //alert(total_price);
                         //alert(data.message['coupon']['percentage']);
                        // $('#error_msg').css('display','block');
                        // $('#error_msg').html(data.message);
 
-
-
+                    
+                        
                     }
                     else{
                        // alert(data.message);
@@ -587,18 +566,18 @@ $(document).ready(function () {
             });
     });
 });
-</script>
+</script> 
 
     <script type="text/javascript">
      $('#placed').click(function() {
        var check =  $('input[name="tnc_p"]:checked').val();
         if(check == "yes")
         {
-            $('.loader').show();
+            $('.loader').show(); 
             return true;
-        }
-
-
+        }    
+            
+       
      });
  </script>
 </script>
@@ -631,9 +610,9 @@ $('#checkout_form').one('submit', function() {
             $('.exp_error_msg').show();
         }
         else{
-            $('.exp_error_msg').hide();
-        }
-        //$(this).closest("div").toggleClass("exp_error_msg",!isMMSlashYYYY(this.value))
+            $('.exp_error_msg').hide();   
+        }    
+        //$(this).closest("div").toggleClass("exp_error_msg",!isMMSlashYYYY(this.value))  
     })
 })
 
@@ -673,7 +652,7 @@ function isMMSlashYYYY(value) {
                 success: function (data) {
                     if(data.status == true)
                     {
-                          //alert('success');
+                          //alert('success');        
                     }
                 }
             });
@@ -692,7 +671,7 @@ function isMMSlashYYYY(value) {
                 success: function (data) {
                     if(data.status == true)
                     {
-                          //alert('success');
+                          //alert('success');        
                     }
                 }
             });
@@ -711,13 +690,13 @@ function isMMSlashYYYY(value) {
                 success: function (data) {
                     if(data.status == true)
                     {
-                          //alert('success');
+                          //alert('success');        
                     }
                 }
             });
     });
 
-});
+});   
 
 </script>
 

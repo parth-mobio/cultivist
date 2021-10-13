@@ -9,9 +9,8 @@ use App\customer;
 use App\Country;
 use URL;
 
-class TestController extends Controller
+class TestController1 extends Controller
 {
-
     public function index()
     {
 
@@ -173,29 +172,29 @@ class TestController extends Controller
 
             /* token gererate code start -- */
 
-              $curl = curl_init();
-
-          curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-              'Content-Type: application/x-www-form-urlencoded',
-              'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-          ));
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
+          CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/x-www-form-urlencoded',
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
+          ),
+        ));
 
         $response = curl_exec($curl);
+
         curl_close($curl);
         $response = json_decode($response, true);
         $token = 'Authorization: Bearer '.$response['access_token']; 
-       
+
       /* token generate code over */  
     /*--- lead create code---- */    
 
@@ -204,7 +203,7 @@ class TestController extends Controller
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+        CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -546,23 +545,22 @@ class TestController extends Controller
 
     /* token gererate code start -- */
 
-       $curl = curl_init();
-
-      curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-        CURLOPT_HTTPHEADER => array(
-          'Content-Type: application/x-www-form-urlencoded',
-          'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-        ),
-      ));
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
+          CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/x-www-form-urlencoded',
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
+          ),
+        ));
 
         $response = curl_exec($curl);
 
@@ -579,7 +577,7 @@ class TestController extends Controller
                 'firstname' => $request->first_name,
                 'email' => $request->email,
                 'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
                 'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
                 'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode : $request->billing_zipcode,
                 'billingcountry' => $request->billing_country==null ? $request->shipping_country : $request->billing_country,
@@ -599,7 +597,7 @@ class TestController extends Controller
                 'giftrecipientemail' => '',
                 'promoapplied' =>$request->promo_gift,
                 'additionalinformation' =>$request->additional_information,
-                'chargifyuserid'=>$request->customer_id,
+              //  'id'=> $request->lead_id,
             );
          
             $lead_data = json_encode($l_data);
@@ -607,7 +605,7 @@ class TestController extends Controller
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+        CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -677,32 +675,9 @@ class TestController extends Controller
     }
     else
     {
-         //print_r($response);
-        //$lead_response['chargifysubscriptionid'] = $response['subscription']['id'];
-        customer::where('email',$request->email)->orderBy('id','desc')->update(['chargify_response'=>$response]);
-        //exit;
-        $response = json_decode($response,true);
-        if(isset($response['subscription']))
-        { 
-            $lead_data['obj']['chargifysubscriptionid'] = $response['subscription']['id'];
-            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d',strtotime($response['subscription']['activated_at']));
-            $lead_data['obj']['membershipfee'] =$response['subscription']['product_price_in_cents'];
-            $lead_data['obj']['paymentfrequency'] = '';
-            $lead_data['obj']['accountcurrency'] = $request->currency; 
-            $lead_responses = json_encode($lead_data);
-        }    
-        else{
-          $lead_data['obj']['chargifysubscriptionid'] = '';
-          $lead_data['obj']['subscriptionstartdate'] = '';
-          $lead_data['obj']['membershipfee'] ='';
-          $lead_data['obj']['paymentfrequency'] = '';
-          $lead_data['obj']['accountcurrency'] = ''; 
-          $lead_responses = json_encode($lead_data);
-        }  
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
+        CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createmember',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -710,7 +685,7 @@ class TestController extends Controller
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS =>$lead_responses,
+        CURLOPT_POSTFIELDS =>$lead_response,
         CURLOPT_HTTPHEADER => array(
           $token,
           'Content-Type: application/json',
@@ -838,9 +813,8 @@ class TestController extends Controller
            /* token gererate code start -- */
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -848,12 +822,13 @@ class TestController extends Controller
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/x-www-form-urlencoded',
-            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
           ),
         ));
+
         $response = curl_exec($curl);
 
         curl_close($curl);
@@ -889,7 +864,7 @@ class TestController extends Controller
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+      CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => '',
       CURLOPT_MAXREDIRS => 10,
@@ -1187,9 +1162,8 @@ class TestController extends Controller
     /* token gererate code start -- */
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -1197,10 +1171,10 @@ class TestController extends Controller
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/x-www-form-urlencoded',
-            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
           ),
         ));
 
@@ -1220,7 +1194,7 @@ class TestController extends Controller
           'email' => $request->email,
           'phone' => $request->phone_number,
           'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-          'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+          'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
           'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
           'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode :$request->billing_zipcode,
           'billingcountry' => $request->billing_country==null ? $request->shipping_country :$request->billing_country,
@@ -1240,7 +1214,6 @@ class TestController extends Controller
           'giftrecipientemail' => '',
           'promoapplied' =>$request->promo_gift,
           'additionalinformation' =>$request->additional_information,
-          'chargifyuserid'=>$request->customer_id,
         //  'id'=>$request->lead_id,
       );
 
@@ -1250,7 +1223,7 @@ class TestController extends Controller
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+      CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => '',
       CURLOPT_MAXREDIRS => 10,
@@ -1314,35 +1287,11 @@ class TestController extends Controller
           }
           else
           {
-
-             // $sub = $response;
-             // $dual_lead_response['chargifysubscriptionid'] = $response['subscription']['id'];
-            customer::where('email',$request->email)->orderBy('id','desc')->update(['chargify_response'=>$response]);
-            $response = json_decode($response,true);
-            if(isset($response['subscription']))
-            {  
-              $lead_datas['obj']['chargifysubscriptionid'] = $response['subscription']['id'];
-              $lead_datas['obj']['subscriptionstartdate'] = date('Y-m-d',strtotime($response['subscription']['activated_at']));
-              $lead_datas['obj']['membershipfee'] =$response['subscription']['product_price_in_cents'];
-              $lead_datas['obj']['paymentfrequency'] = '';
-              $lead_datas['obj']['accountcurrency'] = $request->currency; 
-              $lead_responses = json_encode($lead_datas);
-            }
-            else
-            {  
-              
-              $lead_datas['obj']['chargifysubscriptionid'] = '';
-              $lead_datas['obj']['subscriptionstartdate'] = '';
-              $lead_datas['obj']['membershipfee'] ='';
-              $lead_datas['obj']['paymentfrequency'] = '';
-              $lead_datas['obj']['accountcurrency'] = ''; 
-              $lead_responses = json_encode($lead_datas);
-            }  
             /*member create in dual */
 
                 $curl = curl_init();
               curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
+              CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createmember',
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => '',
               CURLOPT_MAXREDIRS => 10,
@@ -1350,7 +1299,7 @@ class TestController extends Controller
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
               CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS =>$lead_responses,
+              CURLOPT_POSTFIELDS =>$dual_lead_response,
               CURLOPT_HTTPHEADER => array(
                 $token,
                 'Content-Type: application/json',
@@ -1489,9 +1438,8 @@ class TestController extends Controller
     /* token gererate code start -- */
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -1499,10 +1447,10 @@ class TestController extends Controller
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/x-www-form-urlencoded',
-            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
           ),
         ));
 
@@ -1542,7 +1490,7 @@ class TestController extends Controller
             $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -1885,9 +1833,8 @@ class TestController extends Controller
     /* token gererate code start -- */
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -1895,10 +1842,10 @@ class TestController extends Controller
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/x-www-form-urlencoded',
-            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
           ),
         ));
 
@@ -1916,7 +1863,7 @@ class TestController extends Controller
                 'email' => $request->customer_email,
                 'phone' => $request->customer_phone_number,
                 'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
                 'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
                 'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode : $request->billing_zipcode,
                 'billingcountry' => $request->billing_country==null ? $request->shipping_country : $request->billing_country,
@@ -1936,7 +1883,6 @@ class TestController extends Controller
                 'giftrecipientemail' => $request->Emailgift,
                 'promoapplied' =>$request->promo_gift,
                 'additionalinformation' =>$request->additional_information,
-                'chargifyuserid'=>$request->customer_id,
               //  'id'=> $request->lead_id,
 
             );
@@ -1947,7 +1893,7 @@ class TestController extends Controller
             $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -2007,35 +1953,12 @@ class TestController extends Controller
           } 
           else
           {
-              //$sub = $response;
-              //$gift_lead_response['chargifysubscriptionid'] = $response['subscription']['id'];
-            customer::where('email',$request->email)->orderBy('id','desc')->update(['chargify_response'=>$response]);
-            $response = json_decode($response,true);
-            if(isset($response['subscription']))
-            {  
-              $lead_datas['obj']['chargifysubscriptionid'] = $response['subscription']['id'];
-              $lead_datas['obj']['subscriptionstartdate'] = date('Y-m-d',strtotime($response['subscription']['activated_at']));
-              $lead_datas['obj']['membershipfee'] =$response['subscription']['product_price_in_cents'];
-              $lead_datas['obj']['paymentfrequency'] = '';
-              $lead_datas['obj']['accountcurrency'] = $request->currency; 
-              $lead_responses = json_encode($lead_datas);
-            }  
-            else
-            { 
-              
-              $lead_datas['obj']['chargifysubscriptionid'] = '';
-              $lead_datas['obj']['subscriptionstartdate'] = '';
-              $lead_datas['obj']['membershipfee'] ='';
-              $lead_datas['obj']['paymentfrequency'] = '';
-              $lead_datas['obj']['accountcurrency'] = ''; 
-              $lead_responses = json_encode($lead_datas);
-            }  
-              /* gift member */
+                        /* gift member */
 
               $curl = curl_init();
 
               curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
+              CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createmember',
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => '',
               CURLOPT_MAXREDIRS => 10,
@@ -2043,7 +1966,7 @@ class TestController extends Controller
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
               CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS =>$lead_responses,
+              CURLOPT_POSTFIELDS =>$gift_lead_response,
               CURLOPT_HTTPHEADER => array(
                 $token,
                 'Content-Type: application/json',
@@ -2164,9 +2087,8 @@ class TestController extends Controller
         /* token gererate code start -- */
 
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/oauth2/token',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -2174,10 +2096,10 @@ class TestController extends Controller
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
+          CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9d3kx8wbPieGlphtF5U_r5vE5n6xzmYszuNbcgO_Fl7rWpUfWIUWgbO76BWpB7AbTngUbVJNc8T_IU0yk&client_secret=223354502D7CD5E90324AA7A777A7104BB034CECF71A0548D30E8D472009EBF5&username=rahul%40kandisatech.com&password=Cultivist%4012',
           CURLOPT_HTTPHEADER => array(
             'Content-Type: application/x-www-form-urlencoded',
-            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
+            'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
           ),
         ));
 
@@ -2196,7 +2118,7 @@ class TestController extends Controller
                 'firstname' => $request->first_name,
                 'email' => $request->email,
                 'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
                 'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
                 'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode : $request->billing_zipcode,
                 'billingcountry' => $request->billing_country==null ? $request->shipping_country : $request->billing_country,
@@ -2216,7 +2138,6 @@ class TestController extends Controller
                 'giftrecipientemail' => '',
                 'promoapplied' =>$request->promo_gift,
                 'additionalinformation' =>$request->additional_information,
-                'chargifyuserid'=>$request->customer_id,
               //  'id'=> $request->lead_id,
             );
       }  
@@ -2228,7 +2149,7 @@ class TestController extends Controller
           'email' => $request->email,
           'phone' => $request->phone_number,
           'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-          'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+          'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
           'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
           'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode :$request->billing_zipcode,
           'billingcountry' => $request->billing_country==null ? $request->shipping_country :$request->billing_country,
@@ -2248,7 +2169,6 @@ class TestController extends Controller
           'giftrecipientemail' => '',
           'promoapplied' =>$request->promo_gift,
           'additionalinformation' =>$request->additional_information,
-          'chargifyuserid'=>$request->customer_id,
         //  'id'=>$request->lead_id,
         );
       }
@@ -2260,7 +2180,7 @@ class TestController extends Controller
                 'email' => $request->customer_email,
                 'phone' => $request->customer_phone_number,
                 'billingstreet'=>$request->billing_address==null ? $request->shipping_address:$request->billing_address,
-                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_city,
+                'billingcity' => $request->billing_city==null ? $request->shipping_city : $request->billing_address,
                 'billingstate' => $request->billing_state==null ? $request->shipping_state : $request->billing_state,
                 'billingzip' => $request->billing_zipcode==null ? $request->shipping_zipcode : $request->billing_zipcode,
                 'billingcountry' => $request->billing_country==null ? $request->shipping_country : $request->billing_country,
@@ -2280,7 +2200,6 @@ class TestController extends Controller
                 'giftrecipientemail' => $request->Emailgift,
                 'promoapplied' =>$request->promo_gift,
                 'additionalinformation' =>$request->additional_information,
-                'chargifyuserid'=>$request->customer_id,
               //  'id'=> $request->lead_id,
 
             );
@@ -2291,7 +2210,7 @@ class TestController extends Controller
             $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
+          CURLOPT_URL => 'https://thecultivist--kandisa21.my.salesforce.com/services/apexrest/createlead',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
