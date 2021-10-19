@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSuccessResponseToCustomerTable extends Migration
+class CreateCustomerColumns extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,10 @@ class AddSuccessResponseToCustomerTable extends Migration
     public function up()
     {
         Schema::table('customer', function (Blueprint $table) {
-            $table->longtext('chargify_response')->nullable();
+            $table->string('stripe_id')->nullable()->index();
+            $table->string('card_brand')->nullable();
+            $table->string('card_last_four', 4)->nullable();
+            $table->timestamp('trial_ends_at')->nullable();
         });
     }
 
@@ -26,7 +29,12 @@ class AddSuccessResponseToCustomerTable extends Migration
     public function down()
     {
         Schema::table('customer', function (Blueprint $table) {
-            $table->dropColumn('chargify_response');
+            $table->dropColumn([
+                'stripe_id',
+                'card_brand',
+                'card_last_four',
+                'trial_ends_at',
+            ]);
         });
     }
 }
