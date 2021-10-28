@@ -372,42 +372,61 @@
             $('.year').click(function() {
                 var price = $(this).attr('data-value');
                 var pay_name = $(this).attr('data-name');
-                var snap_day = $(this).attr('data-interval');
                 var uk_price_y = $(this).attr('data-uk');
                 var gbp_price_y = $(this).attr('data-gbp');
-
                 $('#pro_price').val('');
                 $('#pro_price').val(price);
                 $('#payment_name').val('');
                 $('#payment_name').val(pay_name);
-                $('#snap_day').val(snap_day);
-                $('#price_point_id').val('955621');
                 $('#uk_product_price').val(uk_price_y);
                 $('#gbp_product_price').val(gbp_price_y);
-                $('#uk_price_point_id').val('957322');
-                $('#gbp_price_point_id').val('1197863');
+                <?php if(isset($plans)){?>
+                var planDetails = <?php echo json_encode($plans)?>;
+                
+                // $('#product_name').val(planDetails.yearlyProductNameUSD);
+                // $('#product_id').val(planDetails.yearlyProductIDUSD);
+                // $('#price_id').val(planDetails.yearlyPlanIDUSD);
+                
+                $('#product_name').val(planDetails.yearlyProductNameLocalUSD);
+                $('#product_id').val(planDetails.yearlyProductIDLocalUSD);
+                $('#price_id').val(planDetails.yearlyPlanIDLocalUSD);
 
+                $('#uk_product_name').val(planDetails.yearlyProductNameEUR);
+                $('#uk_product_id').val(planDetails.yearlyProductIDEUR);
+                $('#uk_price_id').val(planDetails.yearlyPlanIDEUR);
+                $('#gbp_product_name').val(planDetails.yearlyProductName);
+                $('#gbp_product_id').val(planDetails.yearlyProductID);
+                $('#gbp_price_id').val(planDetails.yearlyPlanID);
+                <?php }; ?> 
             });
 
             $('.month').click(function() {
                 var price1 = $(this).attr('data-value');
                 var pay_name1 = $(this).attr('data-name');
-                var snap_day = $(this).attr('data-interval');
-                var uk_price_m = $(this).attr('data-uk');
-                var gbp_price_m = $(this).attr('data-gbp');
-
-                $('#price_point_id').val('962219');
-                //   alert($('#price_point_id').val());
                 $('#pro_price').val();
                 $('#pro_price').val(price1);
                 $('#payment_name').val('');
                 $('#payment_name').val(pay_name1);
-                $('#snap_day').val(snap_day);
-                $('#uk_product_price').val(uk_price_m);
-                $('#gbp_product_price').val(gbp_price_m);
-                $('#uk_price_point_id').val('1196436');
-                $('#gbp_price_point_id').val('1197864');
-                //  alert($('#gbp_product_price').val());
+                <?php if(isset($plans)) { ?>
+                var planDetails = <?php echo json_encode($plans) ?>;
+                
+                // $('#product_name').val(planDetails.monthlyProductNameUSD);
+                // $('#product_id').val(planDetails.monthlyProductIDUSD);
+                // $('#price_id').val(planDetails.monthlyPlanIDUSD);
+
+                $('#product_name').val(planDetails.monthlyProductNameLocalUSD);
+                $('#product_id').val(planDetails.monthlyProductIDLocalUSD);
+                $('#price_id').val(planDetails.monthlyPlanIDLocalUSD);
+
+                $('#uk_product_name').val(planDetails.monthlyProductNameEUR);
+                $('#uk_product_id').val(planDetails.monthlyProductIDEUR);
+                $('#uk_product_price').val(planDetails.monthlyProductAmountEUR);
+                $('#uk_price_id').val(planDetails.monthlyPlanIDEUR);
+                $('#gbp_product_name').val(planDetails.monthlyProductName);
+                $('#gbp_product_id').val(planDetails.monthlyProductID);
+                $('#gbp_product_price').val(planDetails.monthlyProductAmount);
+                $('#gbp_price_id').val(planDetails.monthlyPlanID);
+                <?php } ; ?>
             });
 
             $('.year_g').click(function() {
@@ -486,48 +505,6 @@
                 $('#uk_price_point_id_d').val('1196441');
                 $('#gbp_price_point_id_d').val('1197867');
                 //alert($('#uk_price_point_id_d').val());
-            });
-
-
-            var country = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'MC', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'ES', 'SE', 'CH'];
-            $('.ship_country').change(function() {
-                var val = $(this).val();
-                // alert(val);
-                if (val === 'GB') {
-                    // alert('GB');
-                    var product_id = $('#gbp_product_id').val();
-                    var price_point_id = $('#gbp_product_price_point_id').val();
-                    var product_price = $('#gbp_product_price').val();
-                    $('#checkout_product_id').val(product_id);
-                    $('#product_price_point_id').val(price_point_id);
-                    $('#product_price').val(product_price);
-                    $('.price').text('£' + product_price);
-                    $('.total_price').text('£' + product_price);
-                    $('#currency').val('GBP');
-                    //alert($('#checkout_product_id').val());
-                } else if (jQuery.inArray(val, country) !== -1) {
-                    var product_id = $('#uk_product_id').val();
-                    var price_point_id = $('#uk_product_price_point_id').val();
-                    var product_price = $('#uk_product_price').val();
-                    $('#checkout_product_id').val(product_id);
-                    $('#product_price_point_id').val(price_point_id);
-                    $('#product_price').val(product_price);
-                    $('.price').text('€' + product_price);
-                    $('.total_price').text('€' + product_price);
-                    $('#currency').val('EUR');
-                    // alert($('#checkout_product_id').val());
-                } else {
-                    var def_product_id = $('#default_product_id').val();
-                    var def_point_id = $('#default_product_price_point_id').val();
-                    var def_product_price = $('#default_product_price').val();
-                    $('#checkout_product_id').val(def_product_id);
-                    $('#product_price_point_id').val(def_point_id);
-                    $('#product_price').val(def_product_price);
-                    $('.price').text('$' + def_product_price);
-                    $('.total_price').text('$' + def_product_price);
-                    $('#currency').val('USD');
-                    //                 alert($('#checkout_product_id').val());
-                }
             });
         });
     </script>
@@ -694,7 +671,8 @@
             return true;
         }
     </script>
-    <?php $form_submit = URL::asset('form-submit'); ?>
+    <!-- <?php //$form_submit = URL::asset('form-submit'); 
+            ?>
     <script type="text/javascript">
         $(document).ready(function() {
 
@@ -702,7 +680,8 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php echo $form_submit; ?>",
+                    url: "<?php //echo $form_submit; 
+                            ?>",
                     dataType: 'json',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -720,7 +699,8 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php echo $form_submit; ?>",
+                    url: "<?php //echo $form_submit; 
+                            ?>",
                     dataType: 'json',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -738,7 +718,8 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php echo $form_submit; ?>",
+                    url: "<?php //echo $form_submit; 
+                            ?>",
                     dataType: 'json',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -753,7 +734,7 @@
             });
 
         });
-    </script>
+    </script> -->
     @stack('front-scripts')
 </body>
 

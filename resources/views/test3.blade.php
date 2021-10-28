@@ -1,33 +1,7 @@
 @extends('layouts.front_app')
 @section('content')
 
-@foreach($datas as $key => $value)
-@if($value['handle'] == 'museum-1')
-    <?php
-    $price1 = ($value['price_in_cents'] / 100);
-    $interval = ($value['interval']);
-    $product_id = ($value['id']);
-    $product = ($value['product']);
-    $handle  = ($value['handle']);
-    ?>
-@elseif($value['handle'] == 'museum-2')
-    <?php
-    $price2 = ($value['price_in_cents'] / 100);
-    $interval = ($value['interval']);
-    $product_id = ($value['id']);
-    $product = ($value['product']);
-    $handle  = ($value['handle']);
-    ?>
-@elseif($value['handle'] == 'museum-gift')
-    <?php
-    $price3 = ($value['price_in_cents'] / 100);
-    $interval = ($value['interval']);
-    $product_id = ($value['id']);
-    $product = ($value['product']);
-    $handle  = ($value['handle']);
-    ?>
-@endif
-@endforeach
+
 <main>
     <section class="section-40">
         <div class="container">
@@ -56,6 +30,13 @@
                                     <form method="post" action="{{URL::asset('individual-post')}}" id="contact_form">
                                         @csrf
 
+                                        @if ($message = Session::get('error'))
+                                        <div class="alert alert-danger alert-block alert-message">
+                                            <strong>{!! $message !!}</strong>
+                                            <button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert">×</button>
+                                        </div>
+                                        @endif
+
                                         <div class="row gx-2 pb-3">
                                             <div class="col-12 h6 fw-bold mb-3">Your Details</div>
                                             <div class="col-12 mb-2">
@@ -80,33 +61,16 @@
                                             </div>
                                         </div>
 
-                                        <input type="hidden" name="product_id" value="5246819">
-
-                                        <input type="hidden" name="product_name" value="The Enthusiast">
-                                        <input type="hidden" name="product_handle" value="museum-1">
-                                        <input type="hidden" name="interval" value="12">
-                                        <input type="hidden" name="uk_product_id" id="uk_product_id" value="5247862">
-                                        <input type="hidden" name="uk_product_price" id="uk_product_price" value="475">
-                                        <input type="hidden" name="uk_price_point_id" id="uk_price_point_id" value="957322">
-                                        <input type="hidden" name="gbp_product_id" id="gbp_product_id" value="5460712">
-                                        <input type="hidden" name="gbp_product_price" id="gbp_product_price" value="420">
-                                        <input type="hidden" name="gbp_price_point_id" id="gbp_price_point_id" value="1197863">
-
 
                                 </div>
                                 <div class="tabs-style-1 mt-4">
-
-                                    <input type="hidden" name="product_price" id="pro_price" value="{{440}}">
-                                    <input type="hidden" name="payment_name" id="payment_name" value="1 Year Prepaid">
-                                    <input type="hidden" name="product_price_point_id" id="price_point_id" value="955621">
-                                    <input type="hidden" name="snap_day" id="snap_day" value="28">
                                     <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
                                     <ul class="nav nav-pills pay" role="tablist">
                                         <li class="nav-item payment" role="presentation">
-                                            <a class="nav-link active year" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{440}}" data-name="1 Year Prepaid" data-interval="" data-uk="475" data-gbp="420">1 Year Prepaid</a>
+                                            <a class="nav-link active year" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountUSD']}}" data-name="1 Year Prepaid" data-interval="" data-uk="{{$plans['yearlyProductAmountEUR']}}" data-gbp="{{$plans['yearlyProductAmount']}}">1 Year Prepaid</a>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{40}}" data-name="Pay Monthly" data-interval="28" data-uk="43" data-gbp="40">Pay Monthly</a>
+                                            <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="$plans['monthlyProductAmountEUR']" data-gbp="$plans['monthlyProductAmount']">Pay Monthly</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content" id="payment_tab">
@@ -115,27 +79,48 @@
 
                                             <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
                                                 <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast</div>
+                                                    <div class="fw-bold">{{$plans['yearlyProductNameUSD']}}</div>
                                                     <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
                                                 </div>
-                                                <div class="col-3 text-end">$440</div>
+                                                <div class="col-3 text-end">${{$plans['yearlyProductAmountUSD']}}</div>
                                             </div>
                                             <div class="row gx-1 mt-3">
                                                 <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total">$440</div>
+                                                <div class="col-3 text-end fw-bold total">${{$plans['yearlyProductAmountUSD']}}</div>
                                             </div>
+
+                                            <input type="hidden" id="product_name" name="product_name" value="{{$plans['yearlyProductNameUSD']}}">
+                                            <input type="hidden" id="product_id" name="product_id" value="{{$plans['yearlyProductIDUSD']}}">
+                                            <input type="hidden" id="pro_price" name="product_price" value="{{$plans['yearlyProductAmountUSD']}}">
+                                            <input type="hidden" name="product_handle" value="museum-1">
+                                            <input type="hidden" id="price_id" name="price_id" value="{{$plans['yearlyPlanIDUSD']}}">
+
+
+                                            <input type="hidden" id="uk_product_name" name="uk_product_name" value="{{$plans['yearlyProductNameEUR']}}">
+                                            <input type="hidden" id="uk_product_id" name="uk_product_id" value="{{$plans['yearlyProductIDEUR']}}">
+                                            <input type="hidden" id="uk_product_price" name="uk_product_price" value="{{$plans['yearlyProductAmountEUR']}}">
+                                            <input type="hidden" id="uk_price_id" name="uk_price_id" value="{{$plans['yearlyPlanIDEUR']}}">
+
+                                            <input type="hidden" id="gbp_product_name" name="gbp_product_name" value="{{$plans['yearlyProductName']}}">
+                                            <input type="hidden" id="gbp_product_id" name="gbp_product_id" value="{{$plans['yearlyProductID']}}">
+                                            <input type="hidden" id="gbp_product_price" name="gbp_product_price" value="{{$plans['yearlyProductAmount']}}">
+                                            <input type="hidden" id="gbp_price_id" name="gbp_price_id" value="{{$plans['yearlyPlanID']}}">
+
+
+                                            <input type="hidden" id="payment_name" name="payment_name" value="1 Year Prepaid">
+
                                         </div>
                                         <div class="tab-pane fade" id="paidMonthly" role="tabpanel" aria-labelledby="paidMonthly-tab">
                                             <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
                                                 <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast</div>
+                                                    <div class="fw-bold">{{$plans['monthlyProductNameUSD']}}</div>
                                                     <div class="pt-3">Paid Monthly</div>
                                                 </div>
-                                                <div class="col-3 text-end">$40</div>
+                                                <div class="col-3 text-end">${{$plans['monthlyProductAmountUSD']}}</div>
                                             </div>
                                             <div class="row gx-1 mt-3">
                                                 <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total" id="total">$40</div>
+                                                <div class="col-3 text-end fw-bold total" id="total">${{$plans['monthlyProductAmountUSD']}}</div>
                                             </div>
                                         </div>
                                     </div>

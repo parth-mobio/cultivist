@@ -50,17 +50,18 @@
                                         <option selected disabled>Select Country</option>
                                         <optgroup label="Frequently Used">
                                             @foreach($data['frequently'] as $key=> $val)
-                                            <option value="{{$val->code}}">{{$val->name}}</option>
+                                            <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
                                             @endforeach
                                         </optgroup>
                                         <optgroup label="All Country">
                                             @foreach($data['country'] as $key => $value)
-                                            <option value="{{$value->code}}">{{$value->name}} </option>
+                                            <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
                                             @endforeach
                                         </optgroup>
 
                                     </select>
                                 </div>
+                                <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="" />
                                 @if($data['product_name']== "The Enthusiast - Gift")
 
                                 <input type="hidden" name="shipping_phonenumber" value="{{$data['customer_phone_number']}}">
@@ -68,13 +69,13 @@
 
                                 <input type="hidden" name="uk_product_id" id="uk_product_id" value="{{$data['uk_product_id']}}">
                                 <input type="hidden" name="uk_product_price" id="uk_product_price" value="{{$data['uk_product_price']}}">
-                                <input type="hidden" name="uk_product_price_point_id" id="uk_product_price_point_id" value="{{$data['uk_price_point_id']}}">
+                                <input type="hidden" id="uk_currency" name="currency" value="">
 
                                 <input type="hidden" name="gbp_product_id" id="gbp_product_id" value="{{$data['gbp_product_id']}}">
                                 <input type="hidden" name="gbp_product_price" id="gbp_product_price" value="{{$data['gbp_product_price']}}">
-                                <input type="hidden" name="gbp_product_price_point_id" id="gbp_product_price_point_id" value="{{$data['gbp_price_point_id']}}">
+                                <input type="hidden" id="gbp_currency" name="currency" value="">
 
-                                <input type="hidden" id="currency" name="currency" value="USD">
+                                <input type="hidden" id="currency" name="currency" value="">
                                 <input type="hidden" id="lead_id" name="lead_id" value="{{$data['lead_id']}}">
                                 <input type="hidden" name="customer_id" value="{{$data['customer_id']}}">
                                 <input type="hidden" name="product_handle" value="{{$data['product_handle']}}">
@@ -88,10 +89,8 @@
                                 <input type="hidden" name="default_product_id" id="default_product_id" value="{{$data['product_id']}}">
                                 <input type="hidden" name="product_id" id="checkout_product_id" value="{{$data['product_id']}}">
                                 <input type="hidden" name="payment_name" value="{{$data['payment_name']}}">
-                                <input type="hidden" name="product_name" value="{{$data['product_name']}}">
-                                <input type="hidden" name="snap_day" value="{{$data['snap_day']}}">
-                                <input type="hidden" name="product_price_point_id" id="product_price_point_id" value="{{$data['product_price_point_id']}}">
-                                <input type="hidden" name="default_product_price_point_id" id="default_product_price_point_id" value="{{$data['product_price_point_id']}}">
+                                <input type="hidden" name="product_name" id="product_name" value="{{$data['product_name']}}">
+                                <input type="hidden" name="price_id" id="price_id" value="{{$data['price_id']}}">
                                 <input type="hidden" name="default_product_price" id="default_product_price" value="{{$data['product_price']}}">
 
                                 @if(isset($data['email_dual_member']) && $data['email_dual_member'] != null)
@@ -155,25 +154,25 @@
                                 </div>
                                 <div class="col-12 col-sm-6 mb-2">
                                     <label class="form-label" for="state">State / Province</label>
-                                    <input type="text" class="form-control call" id="state" name="billing_state">
+                                    <input type="text" class="form-control call" id="billing_state" name="billing_state">
                                 </div>
                                 <div class="col-12 mb-2">
                                     <label class="form-label" for="country">Country</label>
-                                    <select class="form-select call" id="billing_country" name="billing_country">
+                                    <select class="form-select call billing_country" id="billing_country" name="billing_country">
                                         <option selected disabled>Select Country</option>
                                         <optgroup label="Frequently Used">
                                             @foreach($data['frequently'] as $key=> $val)
-                                            <option value="{{$val->code}}">{{$val->name}}</option>
+                                            <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
                                             @endforeach
                                         </optgroup>
                                         <optgroup label="All Country">
                                             @foreach($data['country'] as $key => $value)
-                                            <option value="{{$value->code}}">{{$value->name}} </option>
+                                            <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
                                             @endforeach
                                         </optgroup>
                                     </select>
                                 </div>
-
+                                <input type="hidden" name="billing_country_id" id="billing_country_id" value="" />
                             </div>
 
                             <div class="row gx-2 pb-3 credit_card">
@@ -193,29 +192,7 @@
 
                                     </div>
                                     <div class="stripe-errors"></div>
-
-                                    <!-- <label class="form-label" for="ccNumber">Credit Card Number</label>
-                                    <input type="text" class="form-control" id="ccNumber" name="ccnumber"> -->
                                 </div>
-                                <!-- <div class="col-12 col-sm mb-2">
-                                    <label class="form-label" for="expiration">Expiration</label>
-                                    <input type="text" class="form-control" id="expiry" name="expiry" placeholder="MM/YY">
-                                    <span class="exp_error_msg" style="display: none">Invalid expiration</span>
-                                </div>
-                                <div class="col-12 col-sm-3 mb-2">
-                                    <label class="form-label" for="cvv">CVV</label>
-                                    <input type="text" class="form-control" id="cvv" name="cvv">
-                                </div>
-                                <div class="col-12 col-sm mb-2">
-                                    <label class="form-label" for="billingZip">Billing Zip</label>
-                                    <input type="text" class="form-control" id="billing_zip" name="billing_zip">
-                                </div>
-                                @if($data['product_name']== "The Enthusiast - Gift")
-                                <div class="col-12 mb-2">
-                                    <label class="form-label" for="ccNumber">Name on the card</label>
-                                    <input type="text" class="form-control" id="card_name" name="card_name">
-                                </div>
-                                @endif -->
                             </div>
 
                             <div class="row gx-2 py-3">
@@ -248,8 +225,10 @@
                                 <div class="border-bottom border-dark pb-4">
                                     <div class="row gx-1 pt-3">
                                         <div class="col-9">
-                                            <div class="fw-bold">{{$data['product_name']}}</div>
-                                            <div class="pt-3">{{$data['payment_name']}}</div>
+
+                                            <div class="fw-bold" id="product-name">{{$data['product_name']}}</div>
+                                            <div class="pt-3" id="payment-name">{{$data['payment_name']}}</div>
+
                                         </div>
                                         <div class="col-3 text-end price">${{$data['product_price']}}</div>
                                     </div>
@@ -296,10 +275,109 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
-    $(document).ready(function() {
-        if ($('#has-credit-card').val() === 'true') {
-            const stripe = Stripe('pk_test_51JXQbKSEyndK7NRv6haEkOPtVkdmlLhJwQBG7KXFOElbNxdeNKg798q0svD5ltnkEB1XJWCpY3ydjoRhoJBUTpsO00BGc3EOUF');
+    // var stripeKey = "{{Config::get('services.stripe.USD_key')}}";
+    var stripeKey = "{{Config::get('services.stripe.key')}}";
+    const stripe = Stripe(stripeKey);
 
+    function stripeKeySet(param) {
+        const stripe = Stripe(param);
+    }
+    var country = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'MC', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'ES', 'SE', 'CH'];
+
+    var shipping_country = $('.ship_country option:selected').attr('code');
+    $('.ship_country option:selected').val(shipping_country);
+
+    var shipping_country_id = $('.ship_country option:selected').attr('country_id');
+    $('#shipping_country_id').val(shipping_country_id);
+
+    var billing_country_id = $('.billing_country option:selected').attr('country_id');
+    $('#billing_country_id').val(billing_country_id);
+
+    var billing_country = $('.billing_country option:selected').attr('code');
+    $('.billing_country option:selected').val(billing_country);
+
+    $('.ship_country').change(function() {
+        var shipping_country = $('.ship_country option:selected').attr('code');
+        $('.ship_country option:selected').val(shipping_country);
+
+        var shipping_country_id = $('.ship_country option:selected').attr('country_id');
+        $('#shipping_country_id').val(shipping_country_id);
+        if (shipping_country === 'GB') {
+            var product_id = $('#gbp_product_id').val();
+            var product_price = $('#gbp_product_price').val();
+            $('#checkout_product_id').val(product_id);
+            $('#product_price').val(product_price);
+            $('.price').text('£' + product_price);
+            $('.total_price').text('£' + product_price);
+            $('#currency').val('GBP');
+            var gbpStripeKey = "{{Config::get('services.stripe.EUR_GBP_key')}}";
+            stripeKeySet(gbpStripeKey);
+            var data = <?php echo json_encode($data) ?>;
+            $('#product-name').text(data.gbp_product_name);
+            $('#product_name').val(data.gbp_product_name);
+            $('#price_id').val(data.gbp_price_id);
+
+        } else if (jQuery.inArray(shipping_country, country) !== -1) {
+            var product_id = $('#uk_product_id').val();
+            var product_price = $('#uk_product_price').val();
+            $('#checkout_product_id').val(product_id);
+            $('#product_price').val(product_price);
+            $('.price').text('€' + product_price);
+            $('.total_price').text('€' + product_price);
+            $('#currency').val('EUR');
+            var eurStripeKey = "{{Config::get('services.stripe.EUR_GBP_key')}}";
+            stripeKeySet(eurStripeKey);
+            var data = <?php echo json_encode($data) ?>;
+            $('#product-name').text(data.uk_product_name);
+            $('#price_id').val(data.uk_price_id);
+        } else {
+            var def_product_id = $('#default_product_id').val();
+            var def_product_price = $('#default_product_price').val();
+            $('#checkout_product_id').val(def_product_id);
+            $('#product_price').val(def_product_price);
+            $('.price').text('$' + def_product_price);
+            $('.total_price').text('$' + def_product_price);
+            $('#currency').val('USD');
+
+            var localStripeKey = "{{Config::get('services.stripe.key')}}";
+            stripeKeySet(localStripeKey);
+
+            // var usdStripeKey = "{{Config::get('services.stripe.USD_key')}}";
+            // stripeKeySet(usdStripeKey);
+
+            var data = <?php echo json_encode($data) ?>;
+            $('#product-name').text(data.product_name);
+            $('#product_name').val(data.product_name);
+            $('#price_id').val(data.price_id);
+        }
+
+    });
+
+    $(document).ready(function() {
+
+        $('.billing_country').change(function() {
+            var billing_country_id = $('.billing_country option:selected').attr('country_id');
+            $('#billing_country_id').val(billing_country_id);
+
+            var billing_country = $('.billing_country option:selected').attr('code');
+            $('.billing_country option:selected').val(billing_country);
+        });
+
+        $('input[type=radio][name=payment]').change(function() {
+            if (this.value == 'no') {
+                $('#billing_address').val('');
+                $('#billing_city').val('');
+                $('#billing_state').val('');
+                $('#billing_zipcode').val('');
+                $('#billing_country option:selected').removeAttr('selected');
+                $('.billing_country option:selected').attr("value", "");
+                $('#billing_country_id').attr("value", "");
+                $('#billing_country').val('');
+            }
+
+        });
+
+        if ($('#has-credit-card').val() === 'true') {
             var elements = stripe.elements();
             var style = {
                 base: {

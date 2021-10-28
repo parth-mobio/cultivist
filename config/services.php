@@ -31,7 +31,14 @@ return [
     ],
     'stripe' => [
         'model' => App\customer::class,
-        'key' => 'pk_test_51JXQbKSEyndK7NRv6haEkOPtVkdmlLhJwQBG7KXFOElbNxdeNKg798q0svD5ltnkEB1XJWCpY3ydjoRhoJBUTpsO00BGc3EOUF', //env('STRIPE_KEY'),
-        'secret' => 'sk_test_51JXQbKSEyndK7NRv7Lfdcym8Z4xD0KzISYjOUuDAVQMRFrIENeAYuv5d4GlPr6j5m6YORvNQDMViW6UfAizBoTOJ005XjYgOT7' //env('STRIPE_SECRET'),
+        
+        'key' =>env('STRIPE_KEY'),
+        'secret' =>env('STRIPE_SECRET'),
+
+        'EUR_GBP_key' => env('EUR_GBP_STRIPE_KEY'),
+        'EUR_GBP_secret' => env('EUR_GBP_STRIPE_SECRET'),
+
+        'USD_key' => env('USD_STRIPE_KEY'),
+        'USD_secret' => env('USD_STRIPE_SECRET'),
       ],
 ];

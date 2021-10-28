@@ -15,19 +15,22 @@ class TestController extends Controller
     public function index()
     {
         $key = Config::get('services.stripe.secret');
-        $stripe = new \Stripe\StripeClient($key);
-        $plans = $stripe->products->all(['limit' => 3, 'active' => true]);
-        $plans = $plans->data;
-        $plansArray = [];
-        foreach ($plans as $plan) {
-            $plansArray[$plan->name] = $plan->id;
-        }
+        $USDKey = Config::get('services.stripe.USD_secret');
+        $EURGBPKey = Config::get('services.stripe.EUR_GBP_secret');
+        
+        $localPlans = getThePlans($key);
+        $USDPlans = getThePlans($USDKey);    
+        $EURGBPPlans = getThePlans($EURGBPKey);
+     
+        $plans = array_merge($localPlans,$USDPlans,$EURGBPPlans);
+        // dd($plans);
 
-        return view('test3', compact('plansArray'));
+        return view('test3', compact('plans'));
     }
 
     public function individual(Request $request)
     {
+       //dd($request->all());
         $rule =
             [
                 'email' => 'required|email',
@@ -45,21 +48,38 @@ class TestController extends Controller
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
 
-        $customer = new customer();
-        $customer->email = $request->email;
-        $customer->firstname = $request->first_name;
-        $customer->lastname  = $request->last_name;
-        $customer->phone_number = $request->phone_number;
-        $customer->product_id   = $request->product_id;
-        $customer->product_name = $request->product_name;
-        $customer->product_handle = $request->product_handle;
-        $customer->product_price = $request->product_price;
-        $customer->save();
+       $customer = new customer();
+        
+       $customerData = $customer->where('email', $request->email)->get()->first();
+
+        if (isset($customer) && $customer != NULL) {
+
+            $customer->where('email', $request->email)->update([
+                'firstname' => $request->first_name,
+                'lastname'  => $request->last_name,
+                'phone_number' => $request->phone_number,
+                'product_id'   => $request->product_id,
+                'product_name' => $request->product_name,
+                'product_handle' => $request->product_handle,
+                'product_price' => $request->product_price,
+            ]);
+        } else {
+            
+            $customer->email = $request->email;
+            $customer->firstname = $request->first_name;
+            $customer->lastname  = $request->last_name;
+            $customer->phone_number = $request->phone_number;
+            $customer->product_id   = $request->product_id;
+            $customer->product_name = $request->product_name;
+            $customer->product_handle = $request->product_handle;
+            $customer->product_price = $request->product_price;
+            $customer->save();
+        }
 
         $data['customer_id']  = "";
-        $data['customer_first_name'] = $customer->firstname;
-        $data['customer_last_name']  = $customer->lastname;
-        $data['customer_email']  = $customer->email;
+        $data['customer_first_name'] = $request->first_name;
+        $data['customer_last_name']  = $request->last_name;
+        $data['customer_email']  = $request->email;
         $data['phone_number']   = $request->phone_number;
         $data['product_handle'] = $request->product_handle;
         $data['product_id']  = $request->product_id;
@@ -67,24 +87,24 @@ class TestController extends Controller
         $data['url'] = Url::asset('individual_checkout');
         $data['payment_name'] = $request->payment_name;
         $data['product_name'] = $request->product_name;
+        $data['price_id'] = $request->price_id;
         $data['exist'] = "no";
-        $data['snap_day']  = $request->snap_day;
-        $data['product_price_point_id'] = $request->product_price_point_id;
+        $data['uk_product_name'] = $request->uk_product_name;
         $data['uk_product_id'] = $request->uk_product_id;
         $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_point_id'] = $request->uk_price_point_id;
+        $data['uk_price_id'] = $request->uk_price_id;
+        $data['gbp_product_name'] = $request->gbp_product_name;
         $data['gbp_product_id']  = $request->gbp_product_id;
         $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_point_id'] = $request->gbp_price_point_id;
+        $data['gbp_price_id'] = $request->gbp_price_id;
         $data['country'] = $country;
-        $data['frequently'] = $frequently;
-
+        $data['frequently'] = $frequently;        
 
         $l_data = array(
-            'phone' => $customer->phone_number,
-            'lastname' => $customer->lastname,
-            'firstname' => $customer->firstname,
-            'email' => $customer->email,
+            'phone' => $request->phone_number,
+            'lastname' => $request->last_name,
+            'firstname' => $request->first_name,
+            'email' => $request->email,
             'billingstreet' => "",
             'billingcity' => "",
             'billingstate' => "",
@@ -94,7 +114,7 @@ class TestController extends Controller
             'memberlastname' => '',
             'memberphone' => '',
             'memberemail' => '',
-            'chargifyproductid' => $request->product_id,
+            'stripeproductid' => $request->product_id,
             'giftrecipientfirstname' => '',
             'giftrecipientlastname' => '',
             'giftrecipientphone' => '',
@@ -153,18 +173,23 @@ class TestController extends Controller
         ));
 
         $lead_response = curl_exec($curl);
+        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
         $lead_response;
         $l_id = json_decode($lead_response, true);
-        $lead_id = $l_id['id'];
+        if (isset($l_id['id'])) {
+            $lead_id = $l_id['id'];
 
-        /* --- lead code over ----*/
+            /* --- lead code over ----*/
 
-        $data['lead_id'] = $lead_id;
+            $data['lead_id'] = $lead_id;
+        }
 
         $data['intent'] = $customer->createSetupIntent();
-
+        if ($http_status == Config::get('constants.status_error_code')) {
+			return redirect('/')->with('error', $l_id['message']);
+		}
         return view('checkout1', compact('data'));
     }
 
@@ -172,175 +197,50 @@ class TestController extends Controller
     public function individual_checkout(Request $request)
     {
 
+       //dd($request->all());
         $paymentMethod = $request->payment_method;
         $customerData = customer::select('id')->where('email', $request->email)->get()->toArray();
         $customer = customer::find($customerData[0]['id']);
         $customer->createOrGetStripeCustomer();
         $customer->addPaymentMethod($paymentMethod);
-        $subscription = $customer->newSubscription('default', 'price_1JmDiTSEyndK7NRvZ1uF15rI')->create($paymentMethod);
-        dd($subscription);
-        $expiry = explode("/", $request->expiry);
-        $ye = str_replace(' ', '', $expiry[1]);
-        $month = str_replace(' ', '', $expiry[0]);
-        $year = '20' . $ye;
+        $subscription = $customer->newSubscription('default', 'price_1JmYAsSEI23rpgD8mubPZlkc')->create($paymentMethod);
+        //$subscription = $customer->newSubscription('default', $request->price_id)->create($paymentMethod);
+        
+        //dd($subscription);
 
+        if($request->currency == "USD"){
+            
+            //$key = Config::get('services.stripe.USD_secret');
+            $key = Config::get('services.stripe.secret');
+            $stripe = new \Stripe\StripeClient($key);
+            $stripeResponse = $stripe->subscriptions->retrieve(
+                $subscription->stripe_id,
+                []
+            );
+        }else{
+            
+            $key = Config::get('services.stripe.EUR_GBP_secret');
+            $stripe = new \Stripe\StripeClient($key);
+            $stripeResponse = $stripe->subscriptions->retrieve(
+                $subscription->stripe_id,
+                []
+            );
+        }
+        $stripeResponseEncoded = json_encode($stripeResponse);
+        $stripeResponseDecoded = json_decode($stripeResponseEncoded, true);
+
+        //dd($customer, $subscription, $stripeResponseEncoded, $stripeResponseDecoded,$request->all(), $customer->id);
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
-
-        // if ($request->currency == "GBP") {
-
-        //     $post_url1 = "https://the-cultivist-uk-clone-clone.chargify.com/customers.json?q=$request->email";
-        //     $header1 = array(
-        //         "authorization: Basic Z3gwb21rb1ZCclhhY3piWWswSENJYzhBaWNOa00yVXg1UkFvVXh0Nlk6MDAwVGhlQ3VsdGl2aXN0X1VwbGVycyM0Nw=="
-        //     );
-        //     $domain = "GBP";
-        // } else if ($request->currency == "EUR") {
-        //     $post_url1 = "https://the-cultivist-uk-clone.chargify.com/customers.json?q=$request->email";
-        //     $header1 = array(
-        //         "authorization: Basic TzV2bUNBam5QbmtBY3AzaXVBVHZmS3NkeEpGYTlIMXVTSzV2ZVgzOW9BOjAwMFRoZUN1bHRpdmlzdF9VcGxlcnMjNDc="
-        //     );
-        //     $domain = "UK";
-        // } else {
-        //     $post_url1 = "https://the-cultivist-usa.chargify.com/customers.json?q=$request->email";
-        //     $header1 = array(
-        //         "authorization: Basic aUlpVmJoYXZMbFRzMk80eE5KTDFtMFJ4NU9aWEhmVTRkNVBNZmZiNWI4azo="
-        //     );
-        //     $domain = "USA";
-        // }
-
-
-        // $curl = curl_init();
-
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => $post_url1,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => "",
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 30,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => "GET",
-        //     CURLOPT_POSTFIELDS => "{}",
-        //     CURLOPT_HTTPHEADER => $header1,
-        // ));
-
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-
-        // curl_close($curl);
-
-        // if ($err) {
-        //     $error = "cURL Error #:" . $err;
-        // } else {
-        //     $response;
-        // }
-
-        // if ($response == "[]") {
-        //     $datas['domain'] = $domain;
-        //     $datas['product_id'] = $request->product_id;
-        //     $datas['product_price'] = $request->product_price;
-        //     $datas['product_name'] = $request->product_name;
-        //     $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
-        // } else {
-
-        //     $data_json = json_decode($response, true);
-        // dd($data_json);
-        // $datas['domain'] = $domain;
-
-        $customerData = customer::where('email', $request->email);
-        dd($customerData);
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
         $datas['product_name'] = $request->product_name;
+        $datas['customer_id'] = $customer->id;
+        $datas['stripe_response'] = $stripeResponseEncoded;
 
         $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 
-        $request->customer_exist = "yes";
-
-        $request->customer_id = $datas['customer_id'];
-        // }
-
         Country::where('code', $request->shipping_country)->increment('counts', 1);
-
-
-        if ($request->customer_exist == "no") {
-
-            $post_data =  array(
-                'subscription' => array(
-
-                    "snap_day" => $request->snap_day == null ? '' : $request->snap_day,
-                    'product_id' => $request->product_id,
-                    'product_price_point_id' => $request->product_price_point_id,
-                    'customer_attributes' => array(
-                        'first_name' => $request->first_name,
-                        'last_name' => $request->last_name,
-                        'email' => $request->email,
-                        'zip' => $request->shipping_zipcode,
-                        'state' => $request->shipping_state,
-                        'phone' => $request->phone_number,
-                        'country' => $request->shipping_country,
-                        'city' => $request->shipping_city,
-                        'address_2' => NULL,
-                        'address' => $request->shipping_address,
-                    ),
-                    'credit_card_attributes' => array(
-                        'full_number' => $request->ccnumber,
-                        'expiration_month' => $month,
-                        'expiration_year' => $year,
-                        'cvv' => $request->cvv,
-                        'billing_zip' => $request->billing_zip,
-                        'billing_address' => $request->billing_address == null ? $request->shipping_address : $request->billing_address,
-                        'billing_city' => $request->billing_city == null ? $request->shipping_city : $request->billing_address,
-                        'billing_state' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
-                        'billing_zip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-                        'billing_country' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
-                    ),
-                    "metafields" => array(
-                        "additional_information" => $request->additional_information
-                    ),
-                    'coupon_code' => $request->promo_gift == null ? ' ' : $request->promo_gift,
-                    'currency' => $request->currency,
-                ),
-            );
-        } else {
-            $post_data =  array(
-                'subscription' => array(
-                    "snap_day" => $request->snap_day == null ? '' : $request->snap_day,
-
-                    'product_id' => $request->product_id,
-                    'product_price_point_id' => $request->product_price_point_id,
-                    "customer_id" => $request->customer_id,
-                    'customer_attributes' => array(
-                        'first_name' => $request->first_name,
-                        'last_name' => $request->last_name,
-                        'email' => $request->email,
-                        'zip' => $request->shipping_zipcode,
-                        'state' => $request->shipping_state,
-                        'phone' => $request->phone_number,
-                        'country' => $request->shipping_country,
-                        'city' => $request->shipping_city,
-                        'address_2' => NULL,
-                        'address' => $request->shipping_address,
-                    ),
-                    'credit_card_attributes' => array(
-                        'full_number' => $request->ccnumber,
-                        'expiration_month' => $month,
-                        'expiration_year' => $year,
-                        'cvv' => $request->cvv,
-                        'billing_zip' => $request->billing_zip,
-                        'billing_address' => $request->billing_address == null ? $request->shipping_address : $request->billing_address,
-                        'billing_city' => $request->billing_city == null ? $request->shipping_city : $request->billing_address,
-                        'billing_state' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
-                        'billing_zip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-                        'billing_country' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
-                    ),
-                    "metafields" => array(
-                        "additional_information" => $request->additional_information
-                    ),
-                    'coupon_code' => $request->promo_gift == null ? ' ' : $request->promo_gift,
-                    'currency' => $request->currency,
-                ),
-            );
-        }
         $data['customer_id']  = $request->customer_id;
         $data['customer_first_name'] = $request->first_name;
         $data['customer_last_name']  = $request->last_name;
@@ -350,42 +250,23 @@ class TestController extends Controller
         $data['product_id']  = $request->product_id;
         $data['product_price'] = $request->product_price;
         $data['url'] =   $request->url;
+        $data['payment_name'] = $request->payment_name;
+        $data['product_name'] = $request->product_name;
+        $data['price_id'] = $request->price_id;
         $data['exist'] = $request->customer_exist;
         $data['payment_name'] = $request->payment_name;
         $data['product_name'] = $request->product_name;
-        $data['snap_day']  = $request->snap_day;
-        $data['product_price_point_id'] = $request->product_price_point_id;
+        $data['uk_product_name'] = $request->uk_product_name;
         $data['uk_product_id'] = $request->uk_product_id;
         $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_point_id'] = $request->uk_product_price_point_id;
+        $data['uk_price_id'] = $request->uk_price_id;
+        $data['gbp_product_name'] = $request->gbp_product_name;
         $data['gbp_product_id'] = $request->gbp_product_id;
         $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_point_id'] = $request->gbp_product_price_point_id;
+        $data['gbp_price_id'] = $request->gbp_price_id; 
         $data['country'] = $country;
         $data['frequently'] = $frequently;
         $data['lead_id'] = $request->lead_id;
-
-        $json = json_encode($post_data);
-
-        if ($request->currency == "GBP") {
-            $post_url = "https://the-cultivist-uk-clone-clone.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic Z3gwb21rb1ZCclhhY3piWWswSENJYzhBaWNOa00yVXg1UkFvVXh0Nlk6MDAwVGhlQ3VsdGl2aXN0X1VwbGVycyM0Nw==",
-                "content-type: application/json"
-            );
-        } else if ($request->currency == "EUR") {
-            $post_url = "https://the-cultivist-uk-clone.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic TzV2bUNBam5QbmtBY3AzaXVBVHZmS3NkeEpGYTlIMXVTSzV2ZVgzOW9BOjAwMFRoZUN1bHRpdmlzdF9VcGxlcnMjNDc=",
-                "content-type: application/json"
-            );
-        } else {
-            $post_url = "https://the-cultivist-usa.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic aUlpVmJoYXZMbFRzMk80eE5KTDFtMFJ4NU9aWEhmVTRkNVBNZmZiNWI4azo=",
-                "content-type: application/json"
-            );
-        }
 
         /* token gererate code start -- */
 
@@ -435,14 +316,14 @@ class TestController extends Controller
             'memberlastname' => '',
             'memberphone' => '',
             'memberemail' => '',
-            'chargifyproductid' => $request->product_id,
+            'stripeproductid' => $request->product_id,
             'giftrecipientfirstname' => '',
             'giftrecipientlastname' => '',
             'giftrecipientphone' => '',
             'giftrecipientemail' => '',
             'promoapplied' => $request->promo_gift,
             'additionalinformation' => $request->additional_information,
-            'chargifyuserid' => $request->customer_id,
+            'customerid' => $request->customer_id,
         );
 
         $lead_data = json_encode($l_data);
@@ -478,48 +359,16 @@ class TestController extends Controller
 
 
         /* code for create member  */
-
-
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $post_url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => $json,
-            CURLOPT_HTTPHEADER => $header,
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            echo "cURL Error #:" . $err;
-        } else {
-            $error = json_decode($response, true);
-
-            if (isset($error['errors'])) {
-                return view('checkout', compact('data', 'error'));
-            } else {
-                customer::where('email', $request->email)->orderBy('id', 'desc')->update(['chargify_response' => $response]);
-
-                $response = json_decode($response, true);
-                if (isset($response['subscription'])) {
-                    $lead_data['obj']['chargifysubscriptionid'] = $response['subscription']['id'];
-                    $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($response['subscription']['activated_at']));
-                    $lead_data['obj']['membershipfee'] = $response['subscription']['product_price_in_cents'];
+               
+                if (isset($stripeResponseDecoded)) {
+                    $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
+                    $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($stripeResponseDecoded['start_date']));
+                    $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
                     $lead_data['obj']['paymentfrequency'] = '';
                     $lead_data['obj']['accountcurrency'] = $request->currency;
                     $lead_responses = json_encode($lead_data);
                 } else {
-                    $lead_data['obj']['chargifysubscriptionid'] = '';
+                    $lead_data['obj']['stripesubscriptionid'] = '';
                     $lead_data['obj']['subscriptionstartdate'] = '';
                     $lead_data['obj']['membershipfee'] = '';
                     $lead_data['obj']['paymentfrequency'] = '';
@@ -550,8 +399,6 @@ class TestController extends Controller
                 curl_close($curl);
                 $response;
                 return redirect('/success');
-            }
-        }
     }
 
 

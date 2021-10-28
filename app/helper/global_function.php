@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Config;
+
 /**
  * Get the curl response for the create campaign member API.
  *
@@ -61,4 +63,114 @@ function curlResponseForAuthorizedToken($url)
 	));
 
 	return $curl;
+}
+
+/**
+ * Get the USD, GBP & EUR Stripe plans as per the price id using stripe secret key.
+ *
+ * @param string $key
+ * @return array
+ */
+function getThePlans($key)
+{
+	$stripe = new \Stripe\StripeClient($key);
+
+	$plansArrayUSD = [];
+	$plansArrayEUR = [];
+	$plansArrayGBP = [];
+	$plansArrayLocalUSD = [];
+
+	// USD Plans
+	if ($key == Config::get('services.stripe.secret')) {
+		$annualPlansLocalUSD = $stripe->plans->retrieve(
+			Config::get('constants.local_usd_annual_price_id'),
+		);
+
+		$monthlyPlansLocalUSD = $stripe->plans->retrieve(
+			Config::get('constants.local_usd_monthly_price_id'),
+		);
+
+		$plansArrayLocalUSD['yearlyProductNameLocalUSD'] = 'Enthusiast - Annual';
+		$plansArrayLocalUSD['yearlyProductIDLocalUSD'] = $annualPlansLocalUSD->product;
+		$plansArrayLocalUSD['yearlyPlanIDLocalUSD'] = $annualPlansLocalUSD->id;
+		$plansArrayLocalUSD['yearlyProductAmountLocalUSD'] = ($annualPlansLocalUSD->amount / 100);
+		$plansArrayLocalUSD['yearlycProductCurrencyLocalUSD'] = $annualPlansLocalUSD->currency;
+		$plansArrayLocalUSD['yearlyProductIntervalLocalUSD'] = $annualPlansLocalUSD->interval;
+		$plansArrayLocalUSD['monthlyProductNameLocalUSD'] = 'Enthusiast - Monthly';
+		$plansArrayLocalUSD['monthlyProductIDLocalUSD'] = $monthlyPlansLocalUSD->product;
+		$plansArrayLocalUSD['monthlyPlanIDLocalUSD'] = $monthlyPlansLocalUSD->id;
+		$plansArrayLocalUSD['monthlyProductAmountLocalUSD'] = ($monthlyPlansLocalUSD->amount / 100);
+		$plansArrayLocalUSD['monthlyProductCurrencyLocalUSD'] = $monthlyPlansLocalUSD->currency;
+		$plansArrayLocalUSD['monthlyProductIntervalLocalUSD'] = $monthlyPlansLocalUSD->interval;
+	} else if ($key == Config::get('services.stripe.USD_secret')) {
+		$annualPlansUSD = $stripe->plans->retrieve(
+			Config::get('constants.usd_annual_price_id'),
+		);
+
+		$monthlyPlansUSD = $stripe->plans->retrieve(
+			Config::get('constants.usd_monthly_price_id'),
+		);
+
+		$plansArrayUSD['yearlyProductNameUSD'] = $annualPlansUSD->name;
+		$plansArrayUSD['yearlyProductIDUSD'] = $annualPlansUSD->product;
+		$plansArrayUSD['yearlyPlanIDUSD'] = $annualPlansUSD->id;
+		$plansArrayUSD['yearlyProductAmountUSD'] = ($annualPlansUSD->amount / 100);
+		$plansArrayUSD['yearlycProductCurrencyUSD'] = $annualPlansUSD->currency;
+		$plansArrayUSD['yearlyProductIntervalUSD'] = $annualPlansUSD->interval;
+		$plansArrayUSD['monthlyProductNameUSD'] = $monthlyPlansUSD->name;
+		$plansArrayUSD['monthlyProductIDUSD'] = $monthlyPlansUSD->product;
+		$plansArrayUSD['monthlyPlanIDUSD'] = $monthlyPlansUSD->id;
+		$plansArrayUSD['monthlyProductAmountUSD'] = ($monthlyPlansUSD->amount / 100);
+		$plansArrayUSD['monthlyProductCurrencyUSD'] = $monthlyPlansUSD->currency;
+		$plansArrayUSD['monthlyProductIntervalUSD'] = $monthlyPlansUSD->interval;
+	} else {
+		$annualPlansEUR = $stripe->plans->retrieve(
+			Config::get('constants.eur_annual_price_id'),
+		);
+		$monthlyPlansEUR = $stripe->plans->retrieve(
+			Config::get('constants.eur_monthly_price_id'),
+		);
+
+		$annualPlansGBP = $stripe->plans->retrieve(
+			Config::get('constants.gbp_annual_price_id'),
+		);
+		$monthlyPlansGBP = $stripe->plans->retrieve(
+			Config::get('constants.gbp_monthly_price_id'),
+		);
+
+		$plansArrayEUR['yearlyProductNameEUR'] = $annualPlansEUR->name;
+		$plansArrayEUR['yearlyProductIDEUR'] = $annualPlansEUR->product;
+		$plansArrayEUR['yearlyPlanIDEUR'] = $annualPlansEUR->id;
+		$plansArrayEUR['yearlyProductAmountEUR'] = ($annualPlansEUR->amount / 100);
+		//$plansArrayEUR['yearlyProductAmountEUR'] = ($annualPlansEUR->amount);
+		$plansArrayEUR['yearlycProductCurrencyEUR'] = $annualPlansEUR->currency;
+		$plansArrayEUR['yearlyProductIntervalEUR'] = $annualPlansEUR->interval;
+		$plansArrayEUR['monthlyProductNameEUR'] = $monthlyPlansEUR->name;
+		$plansArrayEUR['monthlyProductIDEUR'] = $monthlyPlansEUR->product;
+		$plansArrayEUR['monthlyPlanIDEUR'] = $monthlyPlansEUR->id;
+		$plansArrayEUR['monthlyProductAmountEUR'] = ($monthlyPlansEUR->amount / 100);
+		//$plansArrayEUR['monthlyProductAmountEUR'] = ($monthlyPlansEUR->amount);
+		$plansArrayEUR['monthlyProductCurrencyEUR'] = $monthlyPlansEUR->currency;
+		$plansArrayEUR['monthlyProductIntervalEUR'] = $monthlyPlansEUR->interval;
+
+		$plansArrayGBP['yearlyProductName'] = $annualPlansGBP->name;
+		$plansArrayGBP['yearlyProductID'] = $annualPlansGBP->product;
+		$plansArrayGBP['yearlyPlanID'] = $annualPlansGBP->id;
+		$plansArrayGBP['yearlyProductAmount'] = ($annualPlansGBP->amount / 100);
+		//$plansArrayGBP['yearlyProductAmount'] = ($annualPlansGBP->amount);
+		$plansArrayGBP['yearlycProductCurrency'] = $annualPlansGBP->currency;
+		$plansArrayGBP['yearlyProductInterval'] = $annualPlansGBP->interval;
+		$plansArrayGBP['monthlyProductName'] = $monthlyPlansGBP->name;
+		$plansArrayGBP['monthlyProductID'] = $monthlyPlansGBP->product;
+		$plansArrayGBP['monthlyPlanID'] = $monthlyPlansGBP->id;
+		$plansArrayGBP['monthlyProductAmount'] = ($monthlyPlansGBP->amount / 100);
+		//$plansArrayGBP['monthlyProductAmount'] = ($monthlyPlansGBP->amount);
+		$plansArrayGBP['monthlyProductCurrency'] = $monthlyPlansGBP->currency;
+		$plansArrayGBP['monthlyProductInterval'] = $monthlyPlansGBP->interval;
+	}
+
+
+	$plans = array_merge($plansArrayLocalUSD, $plansArrayUSD, $plansArrayEUR, $plansArrayGBP);
+
+	return $plans;
 }
