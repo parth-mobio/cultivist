@@ -14,23 +14,23 @@ class TestController extends Controller
 
     public function index()
     {
-        $key = Config::get('services.stripe.secret');
-        $USDKey = Config::get('services.stripe.USD_secret');
-        $EURGBPKey = Config::get('services.stripe.EUR_GBP_secret');
-        
-        $localPlans = getThePlans($key);
-        $USDPlans = getThePlans($USDKey);    
-        $EURGBPPlans = getThePlans($EURGBPKey);
-     
-        $plans = array_merge($localPlans,$USDPlans,$EURGBPPlans);
-        // dd($plans);
+        if (getAppEnvironment() === 'local') {
+            $key = Config::get('services.stripe.secret');
+            $plans = getThePlans($key);
+            return view('test3', compact('plans'));
+        } else {
+            $USDKey = Config::get('services.stripe.USD_secret');
+            $EURGBPKey = Config::get('services.stripe.EUR_GBP_secret');
+            $USDPlans = getThePlans($USDKey);
+            $EURGBPPlans = getThePlans($EURGBPKey);
 
-        return view('test3', compact('plans'));
+            $plans = array_merge($USDPlans, $EURGBPPlans);
+            return view('test3', compact('plans'));
+        }
     }
 
     public function individual(Request $request)
     {
-       //dd($request->all());
         $rule =
             [
                 'email' => 'required|email',
@@ -43,14 +43,12 @@ class TestController extends Controller
             return redirect(url()->previous())->withErrors($validator);
         }
 
-
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
+        $customer = new customer();
 
-       $customer = new customer();
-        
-       $customerData = $customer->where('email', $request->email)->get()->first();
+        $customerData = $customer->where('email', $request->email)->get()->first();
 
         if (isset($customer) && $customer != NULL) {
 
@@ -64,7 +62,7 @@ class TestController extends Controller
                 'product_price' => $request->product_price,
             ]);
         } else {
-            
+
             $customer->email = $request->email;
             $customer->firstname = $request->first_name;
             $customer->lastname  = $request->last_name;
@@ -98,7 +96,7 @@ class TestController extends Controller
         $data['gbp_product_price'] = $request->gbp_product_price;
         $data['gbp_price_id'] = $request->gbp_price_id;
         $data['country'] = $country;
-        $data['frequently'] = $frequently;        
+        $data['frequently'] = $frequently;
 
         $l_data = array(
             'phone' => $request->phone_number,
@@ -188,8 +186,8 @@ class TestController extends Controller
 
         $data['intent'] = $customer->createSetupIntent();
         if ($http_status == Config::get('constants.status_error_code')) {
-			return redirect('/')->with('error', $l_id['message']);
-		}
+            return redirect('/')->with('error', $l_id['message']);
+        }
         return view('checkout1', compact('data'));
     }
 
@@ -197,7 +195,7 @@ class TestController extends Controller
     public function individual_checkout(Request $request)
     {
 
-       //dd($request->all());
+        //dd($request->all());
         $paymentMethod = $request->payment_method;
         $customerData = customer::select('id')->where('email', $request->email)->get()->toArray();
         $customer = customer::find($customerData[0]['id']);
@@ -205,11 +203,11 @@ class TestController extends Controller
         $customer->addPaymentMethod($paymentMethod);
         $subscription = $customer->newSubscription('default', 'price_1JmYAsSEI23rpgD8mubPZlkc')->create($paymentMethod);
         //$subscription = $customer->newSubscription('default', $request->price_id)->create($paymentMethod);
-        
+
         //dd($subscription);
 
-        if($request->currency == "USD"){
-            
+        if ($request->currency == "USD") {
+
             //$key = Config::get('services.stripe.USD_secret');
             $key = Config::get('services.stripe.secret');
             $stripe = new \Stripe\StripeClient($key);
@@ -217,8 +215,8 @@ class TestController extends Controller
                 $subscription->stripe_id,
                 []
             );
-        }else{
-            
+        } else {
+
             $key = Config::get('services.stripe.EUR_GBP_secret');
             $stripe = new \Stripe\StripeClient($key);
             $stripeResponse = $stripe->subscriptions->retrieve(
@@ -263,7 +261,7 @@ class TestController extends Controller
         $data['gbp_product_name'] = $request->gbp_product_name;
         $data['gbp_product_id'] = $request->gbp_product_id;
         $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_id'] = $request->gbp_price_id; 
+        $data['gbp_price_id'] = $request->gbp_price_id;
         $data['country'] = $country;
         $data['frequently'] = $frequently;
         $data['lead_id'] = $request->lead_id;
@@ -359,46 +357,46 @@ class TestController extends Controller
 
 
         /* code for create member  */
-               
-                if (isset($stripeResponseDecoded)) {
-                    $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
-                    $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($stripeResponseDecoded['start_date']));
-                    $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
-                    $lead_data['obj']['paymentfrequency'] = '';
-                    $lead_data['obj']['accountcurrency'] = $request->currency;
-                    $lead_responses = json_encode($lead_data);
-                } else {
-                    $lead_data['obj']['stripesubscriptionid'] = '';
-                    $lead_data['obj']['subscriptionstartdate'] = '';
-                    $lead_data['obj']['membershipfee'] = '';
-                    $lead_data['obj']['paymentfrequency'] = '';
-                    $lead_data['obj']['accountcurrency'] = '';
-                    $lead_responses = json_encode($lead_data);
-                }
 
-                $curl = curl_init();
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => $lead_responses,
-                    CURLOPT_HTTPHEADER => array(
-                        $token,
-                        'Content-Type: application/json',
-                        'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-                    ),
-                ));
+        if (isset($stripeResponseDecoded)) {
+            $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
+            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($stripeResponseDecoded['start_date']));
+            $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
+            $lead_data['obj']['paymentfrequency'] = '';
+            $lead_data['obj']['accountcurrency'] = $request->currency;
+            $lead_responses = json_encode($lead_data);
+        } else {
+            $lead_data['obj']['stripesubscriptionid'] = '';
+            $lead_data['obj']['subscriptionstartdate'] = '';
+            $lead_data['obj']['membershipfee'] = '';
+            $lead_data['obj']['paymentfrequency'] = '';
+            $lead_data['obj']['accountcurrency'] = '';
+            $lead_responses = json_encode($lead_data);
+        }
 
-                $response = curl_exec($curl);
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $lead_responses,
+            CURLOPT_HTTPHEADER => array(
+                $token,
+                'Content-Type: application/json',
+                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
+            ),
+        ));
 
-                curl_close($curl);
-                $response;
-                return redirect('/success');
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        $response;
+        return redirect('/success');
     }
 
 
