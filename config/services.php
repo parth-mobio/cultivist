@@ -32,13 +32,13 @@ return [
     'stripe' => [
         'model' => App\customer::class,
         
-        'key' =>env('STRIPE_KEY'),
-        'secret' =>env('STRIPE_SECRET'),
+        // 'key' =>env('STRIPE_KEY'),
+        // 'secret' =>env('STRIPE_SECRET'),
 
         'EUR_GBP_key' => env('EUR_GBP_STRIPE_KEY'),
         'EUR_GBP_secret' => env('EUR_GBP_STRIPE_SECRET'),
 
-        'USD_key' => env('USD_STRIPE_KEY'),
-        'USD_secret' => env('USD_STRIPE_SECRET'),
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
       ],
 ];

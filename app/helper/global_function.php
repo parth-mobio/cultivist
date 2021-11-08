@@ -79,31 +79,7 @@ function getThePlans($key)
 	$plansArrayEUR = [];
 	$plansArrayGBP = [];
 
-    // USD Plans
-    // if ($key == Config::get('services.stripe.secret')) {
-    // 	$annualPlansLocalUSD = $stripe->plans->retrieve(
-    // 		Config::get('constants.local_usd_annual_price_id'),
-    // 	);
-
-    // 	$monthlyPlansLocalUSD = $stripe->plans->retrieve(
-    // 		Config::get('constants.local_usd_monthly_price_id'),
-    // 	);
-
-    // 	$plansArrayLocalUSD['yearlyProductNameLocalUSD'] = 'Enthusiast - Annual';
-    // 	$plansArrayLocalUSD['yearlyProductIDLocalUSD'] = $annualPlansLocalUSD->product;
-    // 	$plansArrayLocalUSD['yearlyPlanIDLocalUSD'] = $annualPlansLocalUSD->id;
-    // 	$plansArrayLocalUSD['yearlyProductAmountLocalUSD'] = ($annualPlansLocalUSD->amount / 100);
-    // 	$plansArrayLocalUSD['yearlycProductCurrencyLocalUSD'] = $annualPlansLocalUSD->currency;
-    // 	$plansArrayLocalUSD['yearlyProductIntervalLocalUSD'] = $annualPlansLocalUSD->interval;
-    // 	$plansArrayLocalUSD['monthlyProductNameLocalUSD'] = 'Enthusiast - Monthly';
-    // 	$plansArrayLocalUSD['monthlyProductIDLocalUSD'] = $monthlyPlansLocalUSD->product;
-    // 	$plansArrayLocalUSD['monthlyPlanIDLocalUSD'] = $monthlyPlansLocalUSD->id;
-    // 	$plansArrayLocalUSD['monthlyProductAmountLocalUSD'] = ($monthlyPlansLocalUSD->amount / 100);
-    // 	$plansArrayLocalUSD['monthlyProductCurrencyLocalUSD'] = $monthlyPlansLocalUSD->currency;
-    // 	$plansArrayLocalUSD['monthlyProductIntervalLocalUSD'] = $monthlyPlansLocalUSD->interval;
-    // }
-
-    if ($key == Config::get('services.stripe.USD_secret')) {
+    if ($key == Config::get('services.stripe.secret')) {
 
         // individual annual plans
         $UsdIndividualAnnualPlans = $stripe->plans->retrieve(
@@ -165,15 +141,15 @@ function getThePlans($key)
         $plansArrayEUR['yearlyProductIntervalEUR'] = $EurIndividualAnnualPlans->interval;
 
         // individual monthly plans of EUR
-        $UsdIndividualMonthlyPlans = $stripe->plans->retrieve(
+        $EurIndividualMonthlyPlans = $stripe->plans->retrieve(
             Config::get('constants.eur_monthly_price_id'),
         );
-        $plansArrayEUR['monthlyProductNameEUR'] = $UsdIndividualMonthlyPlans->name;
-        $plansArrayEUR['monthlyProductIDEUR'] = $UsdIndividualMonthlyPlans->product;
-        $plansArrayEUR['monthlyPlanIDEUR'] = $UsdIndividualMonthlyPlans->id;
-        $plansArrayEUR['monthlyProductAmountEUR'] = ($UsdIndividualMonthlyPlans->amount / 100);
-        $plansArrayEUR['monthlyProductCurrencyEUR'] = $UsdIndividualMonthlyPlans->currency;
-        $plansArrayEUR['monthlyProductIntervalEUR'] = $UsdIndividualMonthlyPlans->interval;
+        $plansArrayEUR['monthlyProductNameEUR'] = $EurIndividualMonthlyPlans->name;
+        $plansArrayEUR['monthlyProductIDEUR'] = $EurIndividualMonthlyPlans->product;
+        $plansArrayEUR['monthlyPlanIDEUR'] = $EurIndividualMonthlyPlans->id;
+        $plansArrayEUR['monthlyProductAmountEUR'] = ($EurIndividualMonthlyPlans->amount / 100);
+        $plansArrayEUR['monthlyProductCurrencyEUR'] = $EurIndividualMonthlyPlans->currency;
+        $plansArrayEUR['monthlyProductIntervalEUR'] = $EurIndividualMonthlyPlans->interval;
 
         // dual monthly plans of EUR
         $EurDualMonthlyPlans = $stripe->plans->retrieve(

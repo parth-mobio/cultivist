@@ -275,7 +275,6 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
-    // var stripeKey = "{{Config::get('services.stripe.USD_key')}}";
     var stripeKey = "{{Config::get('services.stripe.key')}}";
     const stripe = Stripe(stripeKey);
 
@@ -338,13 +337,8 @@
             $('.price').text('$' + def_product_price);
             $('.total_price').text('$' + def_product_price);
             $('#currency').val('USD');
-
-            var localStripeKey = "{{Config::get('services.stripe.key')}}";
-            stripeKeySet(localStripeKey);
-
-            // var usdStripeKey = "{{Config::get('services.stripe.USD_key')}}";
-            // stripeKeySet(usdStripeKey);
-
+            var usdStripeKey = "{{Config::get('services.stripe.key')}}";
+            stripeKeySet(usdStripeKey);
             var data = <?php echo json_encode($data) ?>;
             $('#product-name').text(data.product_name);
             $('#product_name').val(data.product_name);

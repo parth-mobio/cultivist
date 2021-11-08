@@ -11,8 +11,6 @@ return [
     'eur_monthly_price_id'=>'price_1Jn82sG3kTPNIyeJ7vEzVxgz',
     'gbp_annual_price_id'=>'price_1J7o3jG3kTPNIyeJqj4teox4',
     'gbp_monthly_price_id'=>'price_1Jn82MG3kTPNIyeJJkqk3m9Z',
-    'local_usd_annual_price_id'=>'price_1JnNQjSEI23rpgD8vvuTH4VE',
-    'local_usd_monthly_price_id'=>'price_1JnNPjSEI23rpgD8lzMZL3qH',
     'eur_monthly_price_id_dual' => 'price_1JpXvZG3kTPNIyeJHO9xIsYO',
     'eur_annual_price_id_dual' => 'price_1JpXwsG3kTPNIyeJ85eKoaqI',
     'gbp_monthly_price_id_dual' => 'price_1JpXxrG3kTPNIyeJEYS0KB7r',

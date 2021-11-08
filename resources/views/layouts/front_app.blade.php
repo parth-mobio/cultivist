@@ -239,7 +239,7 @@
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
     <style type="text/css">
-        .error {
+        .error.dual-error {
             color: red;
         }
     </style>
@@ -327,6 +327,14 @@
                     Startdategift: 'Please select a date',
                 },
             });
+
+            //Close the alert messages in 15 seconds
+            $(".close-alert-message").on("click", function() {
+                $('.alert-message').hide();
+            });
+            setTimeout(function() {
+                $('.alert-message').fadeOut('fast');
+            }, 15000);
         });
     </script>
     <script type="text/javascript">
@@ -369,6 +377,8 @@
         });
 
         $(document).ready(function() {
+
+            // Individual Membership Form Yearly and Monthly data
             $('.year').click(function() {
                 var price = $(this).attr('data-value');
                 var pay_name = $(this).attr('data-name');
@@ -380,24 +390,18 @@
                 $('#payment_name').val(pay_name);
                 $('#uk_product_price').val(uk_price_y);
                 $('#gbp_product_price').val(gbp_price_y);
-                <?php if(isset($plans)){?>
-                var planDetails = <?php echo json_encode($plans)?>;
-                
-                // $('#product_name').val(planDetails.yearlyProductNameUSD);
-                // $('#product_id').val(planDetails.yearlyProductIDUSD);
-                // $('#price_id').val(planDetails.yearlyPlanIDUSD);
-                
-                $('#product_name').val(planDetails.yearlyProductNameLocalUSD);
-                $('#product_id').val(planDetails.yearlyProductIDLocalUSD);
-                $('#price_id').val(planDetails.yearlyPlanIDLocalUSD);
-
-                $('#uk_product_name').val(planDetails.yearlyProductNameEUR);
-                $('#uk_product_id').val(planDetails.yearlyProductIDEUR);
-                $('#uk_price_id').val(planDetails.yearlyPlanIDEUR);
-                $('#gbp_product_name').val(planDetails.yearlyProductName);
-                $('#gbp_product_id').val(planDetails.yearlyProductID);
-                $('#gbp_price_id').val(planDetails.yearlyPlanID);
-                <?php }; ?> 
+                <?php if (isset($plans)) { ?>
+                    var planDetails = <?php echo json_encode($plans) ?>;
+                    $('#product_name').val(planDetails.yearlyProductNameUSD);
+                    $('#product_id').val(planDetails.yearlyProductIDUSD);
+                    $('#price_id').val(planDetails.yearlyPlanIDUSD);
+                    $('#uk_product_name').val(planDetails.yearlyProductNameEUR);
+                    $('#uk_product_id').val(planDetails.yearlyProductIDEUR);
+                    $('#uk_price_id').val(planDetails.yearlyPlanIDEUR);
+                    $('#gbp_product_name').val(planDetails.yearlyProductName);
+                    $('#gbp_product_id').val(planDetails.yearlyProductID);
+                    $('#gbp_price_id').val(planDetails.yearlyPlanID);
+                <?php }; ?>
             });
 
             $('.month').click(function() {
@@ -407,27 +411,78 @@
                 $('#pro_price').val(price1);
                 $('#payment_name').val('');
                 $('#payment_name').val(pay_name1);
-                <?php if(isset($plans)) { ?>
-                var planDetails = <?php echo json_encode($plans) ?>;
-                
-                // $('#product_name').val(planDetails.monthlyProductNameUSD);
-                // $('#product_id').val(planDetails.monthlyProductIDUSD);
-                // $('#price_id').val(planDetails.monthlyPlanIDUSD);
-
-                $('#product_name').val(planDetails.monthlyProductNameLocalUSD);
-                $('#product_id').val(planDetails.monthlyProductIDLocalUSD);
-                $('#price_id').val(planDetails.monthlyPlanIDLocalUSD);
-
-                $('#uk_product_name').val(planDetails.monthlyProductNameEUR);
-                $('#uk_product_id').val(planDetails.monthlyProductIDEUR);
-                $('#uk_product_price').val(planDetails.monthlyProductAmountEUR);
-                $('#uk_price_id').val(planDetails.monthlyPlanIDEUR);
-                $('#gbp_product_name').val(planDetails.monthlyProductName);
-                $('#gbp_product_id').val(planDetails.monthlyProductID);
-                $('#gbp_product_price').val(planDetails.monthlyProductAmount);
-                $('#gbp_price_id').val(planDetails.monthlyPlanID);
-                <?php } ; ?>
+                <?php if (isset($plans)) { ?>
+                    var planDetails = <?php echo json_encode($plans) ?>;
+                    $('#product_name').val(planDetails.monthlyProductNameUSD);
+                    $('#product_id').val(planDetails.monthlyProductIDUSD);
+                    $('#price_id').val(planDetails.monthlyPlanIDUSD);
+                    $('#uk_product_name').val(planDetails.monthlyProductNameEUR);
+                    $('#uk_product_id').val(planDetails.monthlyProductIDEUR);
+                    $('#uk_product_price').val(planDetails.monthlyProductAmountEUR);
+                    $('#uk_price_id').val(planDetails.monthlyPlanIDEUR);
+                    $('#gbp_product_name').val(planDetails.monthlyProductName);
+                    $('#gbp_product_id').val(planDetails.monthlyProductID);
+                    $('#gbp_product_price').val(planDetails.monthlyProductAmount);
+                    $('#gbp_price_id').val(planDetails.monthlyPlanID);
+                <?php }; ?>
             });
+
+            // Dual Membership Form Yearly and Monthly data
+            $('.year_d').click(function() {
+
+                var price = $(this).attr('data-value');
+                var pay_name4 = $(this).attr('data-name');
+                var uk_price_d = $(this).attr('data-uk');
+                var gbp_price_d = $(this).attr('data-gbp');
+                $('#pro_price_d').val('');
+                $('#pro_price_d').val(price);
+                $('#payment_name_d').val('');
+                $('#payment_name_d').val(pay_name4);
+                $('#uk_product_price_d').val(uk_price_d);
+                $('#gbp_product_price_d').val(gbp_price_d);
+
+                <?php if (isset($plans)) { ?>
+                    var planDetails = <?php echo json_encode($plans) ?>;
+
+                    $('#product_name_d').val(planDetails.yearlyProductNameDualUSD);
+                    $('#product_id_d').val(planDetails.yearlyProductIDDualUSD);
+                    $('#price_id_d').val(planDetails.yearlyPlanIDDualUSD);
+
+                    $('#uk_product_name_d').val(planDetails.yearlyProductNameDualEUR);
+                    $('#uk_product_id_d').val(planDetails.yearlyProductIDDualEUR);
+                    $('#uk_price_id_d').val(planDetails.yearlyPlanIDDualEUR);
+
+                    $('#gbp_product_name_d').val(planDetails.yearlyProductNameDualGBP);
+                    $('#gbp_product_id_d').val(planDetails.yearlyProductIDDualGBP);
+                    $('#gbp_price_id_d').val(planDetails.yearlyPlanIDDualGBP);
+                <?php }; ?>
+            });
+
+            $('.month_d').click(function() {
+
+                var price3 = $(this).attr('data-value');
+                var pay_name5 = $(this).attr('data-name');
+                $('#pro_price_d').val();
+                $('#pro_price_d').val(price3);
+                $('#payment_name_d').val('');
+                $('#payment_name_d').val(pay_name5);
+                <?php if (isset($plans)) { ?>
+                    var planDetails = <?php echo json_encode($plans) ?>;
+                    $('#product_name_d').val(planDetails.monthlyProductNameDualUSD);
+                    $('#product_id_d').val(planDetails.monthlyProductIDDualUSD);
+                    $('#price_id_d').val(planDetails.monthlyPlanIDDualUSD);
+                    $('#uk_product_name_d').val(planDetails.monthlyProductNameDualEUR);
+                    $('#uk_product_id_d').val(planDetails.monthlyProductIDDualEUR);
+                    $('#uk_product_price_d').val(planDetails.monthlyProductAmountDualEUR);
+                    $('#uk_price_id_d').val(planDetails.monthlyPlanIDDualEUR);
+                    $('#gbp_product_name_d').val(planDetails.monthlyProductNameDualGBP);
+                    $('#gbp_product_id_d').val(planDetails.monthlyProductIDDualGBP);
+                    $('#gbp_product_price_d').val(planDetails.monthlyProductAmountDualGBP);
+                    $('#gbp_price_id_d').val(planDetails.monthlyPlanIDDualGBP);
+                <?php }; ?>
+            });
+
+            // Gift Membership Form Yearly and Monthly data
 
             $('.year_g').click(function() {
                 var price = $(this).attr('data-value');
@@ -464,47 +519,6 @@
                 //    $('#price_point_id_g').val('1188338');
                 $('#snap_day_g').val(snap_day_g);
                 // alert($('#payment_name_g').val());
-            });
-
-            $('.year_d').click(function() {
-                var price = $(this).attr('data-value');
-                var pay_name4 = $(this).attr('data-name');
-                var snap_day_d = $(this).attr('data-interval');
-                var uk_price_d = $(this).attr('data-uk');
-                var gbp_price_d = $(this).attr('data-gbp');
-
-                $('#price_point_id_d').val('1188336');
-                $('#pro_price_d').val(price);
-                $('#payment_name_d').val('');
-                $('#payment_name_d').val(pay_name4);
-                $('#snap_day_d').val(snap_day_d);
-                $('#uk_product_price_d').val(uk_price_d);
-                $('#gbp_product_price_d').val(gbp_price_d);
-                $('#uk_price_point_id_d').val('1196439');
-                $('#gbp_price_point_id_d').val('1197868');
-
-                // alert($('#gbp_product_price_d').val());
-                //  alert($('#price_point_id_d').val());
-            });
-
-            $('.month_d').click(function() {
-                var price3 = $(this).attr('data-value');
-                var pay_name5 = $(this).attr('data-name');
-                var snap_day_d = $(this).attr('data-interval');
-                var uk_price_d_m = $(this).attr('data-uk');
-                var gbp_price_d_m = $(this).attr('data-gbp');
-                // alert(price2);
-                $('#price_point_id_d').val('1188337');
-                $('#pro_price_d').val();
-                $('#pro_price_d').val(price3);
-                $('#payment_name_d').val('');
-                $('#payment_name_d').val(pay_name5);
-                $('#snap_day_d').val(snap_day_d);
-                $('#uk_product_price_d').val(uk_price_d_m);
-                $('#gbp_product_price_d').val(gbp_price_d_m);
-                $('#uk_price_point_id_d').val('1196441');
-                $('#gbp_price_point_id_d').val('1197867');
-                //alert($('#uk_price_point_id_d').val());
             });
         });
     </script>

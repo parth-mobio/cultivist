@@ -70,7 +70,7 @@
                                             <a class="nav-link active year" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountUSD']}}" data-name="1 Year Prepaid" data-interval="" data-uk="{{$plans['yearlyProductAmountEUR']}}" data-gbp="{{$plans['yearlyProductAmount']}}">1 Year Prepaid</a>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="$plans['monthlyProductAmountEUR']" data-gbp="$plans['monthlyProductAmount']">Pay Monthly</a>
+                                            <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountEUR']}}" data-gbp="{{$plans['monthlyProductAmount']}}">Pay Monthly</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content" id="payment_tab">
@@ -148,6 +148,13 @@
                                     <form method="post" action="{{URL::asset('dual-post')}}" id="dual_form">
                                         @csrf
 
+                                        @if ($message = Session::get('dual-error'))
+                                        <div class="alert alert-danger alert-block alert-message">
+                                            <strong>{!! $message !!}</strong>
+                                            <button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert">×</button>
+                                        </div>
+                                        @endif
+
                                         <div class="row gx-2 pb-3">
                                             <div class="col-12 h6 fw-bold mb-3">Card Holder 1</div>
                                             <div class="col-12 mb-2">
@@ -195,36 +202,34 @@
                                             </div>
                                         </div>
 
-                                        <input type="hidden" name="product_id" value="5453217">
-                                        <input type="hidden" name="product_name" value="The Enthusiast - Dual">
+                                        <input type="hidden" id="product_name_d" name="product_name" value="{{$plans['yearlyProductNameDualUSD']}}">
+                                        <input type="hidden" id="product_id_d" name="product_id" value="{{$plans['yearlyProductIDDualUSD']}}">
+                                        <input type="hidden" id="pro_price_d" name="product_price" value="{{$plans['yearlyProductAmountDualUSD']}}">
                                         <input type="hidden" name="product_handle" value="museum-dual">
-                                        <input type="hidden" name="interval" value="12">
-                                        <input type="hidden" name="uk_product_id" id="uk_product_id_d" value="5459440">
-                                        <input type="hidden" name="uk_product_price" id="uk_product_price_d" value="950">
-                                        <input type="hidden" name="uk_price_point_id" id="uk_price_point_id_d" value="1196439">
+                                        <input type="hidden" id="price_id_d" name="price_id" value="{{$plans['yearlyPlanIDDualUSD']}}">
 
-                                        <input type="hidden" name="gbp_product_id" id="gbp_product_id_d" value="5460714">
-                                        <input type="hidden" name="gbp_product_price" id="gbp_product_price_d" value="840">
-                                        <input type="hidden" name="gbp_price_point_id" id="gbp_price_point_id_d" value="1197868">
+
+                                        <input type="hidden" id="uk_product_name_d" name="uk_product_name" value="{{$plans['yearlyProductNameDualEUR']}}">
+                                        <input type="hidden" id="uk_product_id_d" name="uk_product_id" value="{{$plans['yearlyProductIDDualEUR']}}">
+                                        <input type="hidden" id="uk_product_price_d" name="uk_product_price" value="{{$plans['yearlyProductAmountDualEUR']}}">
+                                        <input type="hidden" id="uk_price_id_d" name="uk_price_id" value="{{$plans['yearlyPlanIDDualEUR']}}">
+
+                                        <input type="hidden" id="gbp_product_name_d" name="gbp_product_name" value="{{$plans['yearlyProductNameDualGBP']}}">
+                                        <input type="hidden" id="gbp_product_id_d" name="gbp_product_id" value="{{$plans['yearlyProductIDDualGBP']}}">
+                                        <input type="hidden" id="gbp_product_price_d" name="gbp_product_price" value="{{$plans['yearlyProductAmountDualGBP']}}">
+                                        <input type="hidden" id="gbp_price_id_d" name="gbp_price_id" value="{{$plans['yearlyPlanIDDualGBP']}}">
 
                                 </div>
                                 <div class="tabs-style-1 mt-4">
-
-                                    <?php
-                                    //$price = (($value['price_in_cents']/ 100)*2);
-                                    $price_year = (88000 / 100);
-                                    ?>
-                                    <input type="hidden" name="product_price" id="pro_price_d" value="{{$price_year}}">
                                     <input type="hidden" name="payment_name" id="payment_name_d" value="1 Year Prepaid">
-                                    <input type="hidden" name="product_price_point_id" id="price_point_id_d" value="1188336">
                                     <input type="hidden" name="snap_day" id="snap_day_d" value="28">
                                     <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
                                     <ul class="nav nav-pills pay" role="tablist">
                                         <li class="nav-item payment" role="presentation">
-                                            <a class="nav-link active year_d" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid1" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$price_year}}" data-name="1 Year Prepaid" data-uk="950" data-gbp="840">1 Year Prepaid</a>
+                                            <a class="nav-link active year_d" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid1" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountDualUSD']}}" data-name="1 Year Prepaid" data-uk="{{$plans['yearlyProductAmountDualEUR']}}" data-gbp="{{$plans['yearlyProductAmountDualGBP']}}">1 Year Prepaid</a>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link month_d" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly1" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="80" data-name="Pay Monthly" data-interval="28" data-uk="86" data-gbp="80">Pay Monthly</a>
+                                            <a class="nav-link month_d" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly1" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountDualUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountDualEUR']}}" data-gbp="{{$plans['monthlyProductAmountDualGBP']}}">Pay Monthly</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content" id="payment_tab">
@@ -233,27 +238,27 @@
 
                                             <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
                                                 <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast - Dual Memberships</div>
+                                                    <div class="fw-bold">{{$plans['yearlyProductNameDualUSD']}}</div>
                                                     <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
                                                 </div>
-                                                <div class="col-3 text-end">${{$price_year}}</div>
+                                                <div class="col-3 text-end">${{$plans['yearlyProductAmountDualUSD']}}</div>
                                             </div>
                                             <div class="row gx-1 mt-3">
                                                 <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total">${{$price_year}}</div>
+                                                <div class="col-3 text-end fw-bold total">${{$plans['yearlyProductAmountDualUSD']}}</div>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="paidMonthly1" role="tabpanel" aria-labelledby="paidMonthly-tab">
                                             <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
                                                 <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast - Dual Memberships</div>
+                                                    <div class="fw-bold">{{$plans['monthlyProductNameDualUSD']}}</div>
                                                     <div class="pt-3">Paid Monthly</div>
                                                 </div>
-                                                <div class="col-3 text-end">$80</div>
+                                                <div class="col-3 text-end">${{$plans['monthlyProductAmountDualUSD']}}</div>
                                             </div>
                                             <div class="row gx-1 mt-3">
                                                 <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total" id="total">$80</div>
+                                                <div class="col-3 text-end fw-bold total" id="total">${{$plans['monthlyProductAmountDualUSD']}}</div>
                                             </div>
                                         </div>
                                     </div>
