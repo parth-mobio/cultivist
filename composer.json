@@ -11,6 +11,7 @@
         "php": "^7.2",
         "doctrine/inflector": "1.4.0",
         "fideloper/proxy": "^4.0",
+        "laravel/cashier": "12.15.0",
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "monolog/monolog": "^1.22"
@@ -34,6 +35,9 @@
         }
     },
     "autoload": {
+        "files": [
+            "app/helper/global_function.php"
+        ],
         "psr-4": {
             "App\\": "app/"
         },

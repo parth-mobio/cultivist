@@ -29,5 +29,16 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'stripe' => [
+        'model' => App\customer::class,
+        
+        // 'key' =>env('STRIPE_KEY'),
+        // 'secret' =>env('STRIPE_SECRET'),
 
+        'EUR_GBP_key' => env('EUR_GBP_STRIPE_KEY'),
+        'EUR_GBP_secret' => env('EUR_GBP_STRIPE_SECRET'),
+
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+      ],
 ];

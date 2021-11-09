@@ -28,6 +28,8 @@ Route::post('gift_checkout','TestController@gift_checkout');
 Route::get('success','TestController@success');
 Route::post('form-submit','TestController@formsubmit');
 
+// webhook routes
+Route::post('stripe/webhook', 'StripeWebhookController@handleWebhook');
 
 Auth::routes();
 
