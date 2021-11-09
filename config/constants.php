@@ -56,5 +56,11 @@ return [
         'gift_browser_id' => 'tdG2nKgDEeu56Q1Yr4wGvQ',
         'individual_dual_browser_id' => 'bPUO05dxEeusWeWw8fMlDw',
     ],
-    'app_env' => env('APP_ENV')
+    'app_env' => env('APP_ENV'),
+    'payment_status' => [
+        'payment_success' => 'Successful',
+        'payment_failure' => 'Unsuccessful',
+        'renewal_success' => 'Successful',
+        'renewal_failure' => 'Unsuccessful'
+    ],
 ];

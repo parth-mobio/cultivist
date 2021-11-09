@@ -282,7 +282,7 @@ class TestController extends Controller
 
         if (isset($stripeResponseDecoded)) {
             $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
-            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($stripeResponseDecoded['start_date']));
+            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', $stripeResponseDecoded['start_date']);
             $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
             $lead_data['obj']['paymentfrequency'] = '';
             $lead_data['obj']['accountcurrency'] = $request->currency;
@@ -559,20 +559,21 @@ class TestController extends Controller
         $dual_lead_data = json_encode($duallead_data);
 
         $lead_datas = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $dual_lead_data);
+        $lead_data = $lead_datas['lead_data'];
+
         $ud_datas['leadId'] = $lead_datas['lead_data']['id'];
         $ud_datas['lead_response'] = $lead_datas;
 
-        $this->updateCustomerData($customerId, $ud_datas);
-        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($ud_datas);
-
         /* --- lead code over ----*/
 
+        $this->updateCustomerData($customerId, $ud_datas);
+        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($ud_datas);
 
         /* code for create member in dual */
 
         if (isset($stripeResponseDecoded)) {
             $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
-            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($stripeResponseDecoded['start_date']));
+            $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', $stripeResponseDecoded['start_date']);
             $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
             $lead_data['obj']['paymentfrequency'] = '';
             $lead_data['obj']['accountcurrency'] = $request->currency;
