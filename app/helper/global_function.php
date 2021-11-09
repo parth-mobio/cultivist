@@ -78,12 +78,13 @@ function getThePlans($key)
 	$plansArrayUSD = [];
 	$plansArrayEUR = [];
 	$plansArrayGBP = [];
+    $stripeEnv = getAppEnvironment() == 'production' ? 'production' : 'sandbox';
 
     if ($key == Config::get('services.stripe.secret')) {
 
         // individual annual plans
         $UsdIndividualAnnualPlans = $stripe->plans->retrieve(
-                Config::get('constants.usd_annual_price_id'),
+                Config::get('constants.'.$stripeEnv.'.usd_annual_price_id'),
             );
 
         $plansArrayUSD['yearlyProductNameUSD'] = $UsdIndividualAnnualPlans->name;
@@ -95,7 +96,7 @@ function getThePlans($key)
 
         // individual monthly plans
         $UsdIndividualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.usd_monthly_price_id'),
+            Config::get('constants.'.$stripeEnv.'.usd_monthly_price_id'),
         );
         $plansArrayUSD['monthlyProductNameUSD'] = $UsdIndividualMonthlyPlans->name;
         $plansArrayUSD['monthlyProductIDUSD'] = $UsdIndividualMonthlyPlans->product;
@@ -106,7 +107,7 @@ function getThePlans($key)
 
         // dual monthly plans
         $UsdDualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.usd_monthly_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.usd_monthly_price_id_dual'),
         );
         $plansArrayUSD['monthlyProductNameDualUSD'] = $UsdDualMonthlyPlans->name;
         $plansArrayUSD['monthlyProductIDDualUSD'] = $UsdDualMonthlyPlans->product;
@@ -117,7 +118,7 @@ function getThePlans($key)
 
         // dual annual plans
         $UsdDualAnnualPlans = $stripe->plans->retrieve(
-            Config::get('constants.usd_annual_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.usd_annual_price_id_dual'),
         );
         $plansArrayUSD['yearlyProductNameDualUSD'] = $UsdDualAnnualPlans->name;
         $plansArrayUSD['yearlyProductIDDualUSD'] = $UsdDualAnnualPlans->product;
@@ -126,12 +127,23 @@ function getThePlans($key)
         $plansArrayUSD['yearlyProductCurrencyDualUSD'] = $UsdDualAnnualPlans->currency;
         $plansArrayUSD['yearlyProductIntervalDualUSD'] = $UsdDualAnnualPlans->interval;
 
+        // gift annual plans
+        $UsdGiftAnnualPlans = $stripe->plans->retrieve(
+            Config::get('constants.'.$stripeEnv.'.usd_annual_price_id_gift'),
+        );
+        $plansArrayUSD['yearlyProductNameGiftUSD'] = $UsdGiftAnnualPlans->name;
+        $plansArrayUSD['yearlyProductIDGiftUSD'] = $UsdGiftAnnualPlans->product;
+        $plansArrayUSD['yearlyPlanIDGiftUSD'] = $UsdGiftAnnualPlans->id;
+        $plansArrayUSD['yearlyProductAmountGiftUSD'] = ($UsdGiftAnnualPlans->amount / 100);
+        $plansArrayUSD['yearlyProductCurrencyGiftUSD'] = $UsdGiftAnnualPlans->currency;
+        $plansArrayUSD['yearlyProductIntervalGiftUSD'] = $UsdGiftAnnualPlans->interval;
+
         return $plansArrayUSD;
     } else {
 
         // individual annual plans for EUR
         $EurIndividualAnnualPlans = $stripe->plans->retrieve(
-            Config::get('constants.eur_annual_price_id'),
+            Config::get('constants.'.$stripeEnv.'.eur_annual_price_id'),
         );
         $plansArrayEUR['yearlyProductNameEUR'] = $EurIndividualAnnualPlans->name;
         $plansArrayEUR['yearlyProductIDEUR'] = $EurIndividualAnnualPlans->product;
@@ -142,7 +154,7 @@ function getThePlans($key)
 
         // individual monthly plans of EUR
         $EurIndividualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.eur_monthly_price_id'),
+            Config::get('constants.'.$stripeEnv.'.eur_monthly_price_id'),
         );
         $plansArrayEUR['monthlyProductNameEUR'] = $EurIndividualMonthlyPlans->name;
         $plansArrayEUR['monthlyProductIDEUR'] = $EurIndividualMonthlyPlans->product;
@@ -153,7 +165,7 @@ function getThePlans($key)
 
         // dual monthly plans of EUR
         $EurDualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.eur_monthly_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.eur_monthly_price_id_dual'),
         );
         $plansArrayEUR['monthlyProductNameDualEUR'] = $EurDualMonthlyPlans->name;
         $plansArrayEUR['monthlyProductIDDualEUR'] = $EurDualMonthlyPlans->product;
@@ -164,7 +176,7 @@ function getThePlans($key)
 
         // dual annual plans of EUR
         $EurDualAnnualPlans = $stripe->plans->retrieve(
-            Config::get('constants.eur_annual_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.eur_annual_price_id_dual'),
         );
         $plansArrayEUR['yearlyProductNameDualEUR'] = $EurDualAnnualPlans->name;
         $plansArrayEUR['yearlyProductIDDualEUR'] = $EurDualAnnualPlans->product;
@@ -173,9 +185,20 @@ function getThePlans($key)
         $plansArrayEUR['yearlyProductCurrencyDualEUR'] = $EurDualAnnualPlans->currency;
         $plansArrayEUR['yearlyProductIntervalDualEUR'] = $EurDualAnnualPlans->interval;
 
+        // gift annual plans for EUR
+        $EurGiftAnnualPlans = $stripe->plans->retrieve(
+            Config::get('constants.'.$stripeEnv.'.eur_annual_price_id_gift'),
+        );
+        $plansArrayEUR['yearlyProductNameGiftEUR'] = $EurGiftAnnualPlans->name;
+        $plansArrayEUR['yearlyProductIDGiftEUR'] = $EurGiftAnnualPlans->product;
+        $plansArrayEUR['yearlyPlanIDGiftEUR'] = $EurGiftAnnualPlans->id;
+        $plansArrayEUR['yearlyProductAmountGiftEUR'] = ($EurGiftAnnualPlans->amount / 100);
+        $plansArrayEUR['yearlyProductCurrencyGiftEUR'] = $EurGiftAnnualPlans->currency;
+        $plansArrayEUR['yearlyProductIntervalGiftEUR'] = $EurGiftAnnualPlans->interval;
+
         // individual annual plans for GBP
         $GbpIndividualAnnualPlans = $stripe->plans->retrieve(
-            Config::get('constants.gbp_annual_price_id'),
+            Config::get('constants.'.$stripeEnv.'.gbp_annual_price_id'),
         );
         $plansArrayGBP['yearlyProductName'] = $GbpIndividualAnnualPlans->name;
         $plansArrayGBP['yearlyProductID'] = $GbpIndividualAnnualPlans->product;
@@ -186,7 +209,7 @@ function getThePlans($key)
 
         // individual monthly plans for GBP
         $GbpIndividualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.gbp_monthly_price_id'),
+            Config::get('constants.'.$stripeEnv.'.gbp_monthly_price_id'),
         );
         $plansArrayGBP['monthlyProductName'] = $GbpIndividualMonthlyPlans->name;
         $plansArrayGBP['monthlyProductID'] = $GbpIndividualMonthlyPlans->product;
@@ -197,7 +220,7 @@ function getThePlans($key)
 
         // dual monthly plans for GBP
         $GBPDualMonthlyPlans = $stripe->plans->retrieve(
-            Config::get('constants.gbp_monthly_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.gbp_monthly_price_id_dual'),
         );
         $plansArrayGBP['monthlyProductNameDualGBP'] = $GBPDualMonthlyPlans->name;
         $plansArrayGBP['monthlyProductIDDualGBP'] = $GBPDualMonthlyPlans->product;
@@ -208,7 +231,7 @@ function getThePlans($key)
 
         // dual annual plans for GBP
         $GbpDualAnnualPlans = $stripe->plans->retrieve(
-            Config::get('constants.gbp_annual_price_id_dual'),
+            Config::get('constants.'.$stripeEnv.'.gbp_annual_price_id_dual'),
         );
         $plansArrayGBP['yearlyProductNameDualGBP'] = $GbpDualAnnualPlans->name;
         $plansArrayGBP['yearlyProductIDDualGBP'] = $GbpDualAnnualPlans->product;
@@ -216,6 +239,17 @@ function getThePlans($key)
         $plansArrayGBP['yearlyProductAmountDualGBP'] = ($GbpDualAnnualPlans->amount / 100);
         $plansArrayGBP['yearlyProductCurrencyDualGBP'] = $GbpDualAnnualPlans->currency;
         $plansArrayGBP['yearlyProductIntervalDualGBP'] = $GbpDualAnnualPlans->interval;
+
+        // gift annual plans for EUR
+        $GbpGiftAnnualPlans = $stripe->plans->retrieve(
+            Config::get('constants.'.$stripeEnv.'.gbp_annual_price_id_gift'),
+        );
+        $plansArrayGBP['yearlyProductNameGiftGBP'] = $GbpGiftAnnualPlans->name;
+        $plansArrayGBP['yearlyProductIDGiftGBP'] = $GbpGiftAnnualPlans->product;
+        $plansArrayGBP['yearlyPlanIDGiftGBP'] = $GbpGiftAnnualPlans->id;
+        $plansArrayGBP['yearlyProductAmountGiftGBP'] = ($GbpGiftAnnualPlans->amount / 100);
+        $plansArrayGBP['yearlyProductCurrencyGiftGBP'] = $GbpGiftAnnualPlans->currency;
+        $plansArrayGBP['yearlyProductIntervalGiftGBP'] = $GbpGiftAnnualPlans->interval;
 
         return array_merge($plansArrayEUR, $plansArrayGBP);
     }
@@ -230,4 +264,39 @@ function getThePlans($key)
 function getAppEnvironment()
 {
     return Config::get('constants.app_env');
+}
+
+function getSalesForceUsername($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_username');
+}
+
+function getSalesForcePassword($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_password');
+}
+
+function getSalesForceToken($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_token');
+}
+
+function getSalesForceBaseUrl($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_base_URL');
+}
+
+function getSalesForceClientId($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_client_id');
+}
+
+function getSalesForceClientSecret($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_client_secret');
+}
+
+function getSalesForceTokenUrl($stripeEnv)
+{
+    return Config::get('constants.'.$stripeEnv.'.salesforce_token_url');
 }

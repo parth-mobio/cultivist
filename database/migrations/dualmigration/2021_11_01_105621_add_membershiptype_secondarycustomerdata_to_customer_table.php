@@ -16,6 +16,7 @@ class AddMembershiptypeSecondarycustomerdataToCustomerTable extends Migration
         Schema::table('customer', function (Blueprint $table) {
             $table->string('membership_type')->nullable();
             $table->longText('secondary_customer_data')->nullable();
+            $table->longText('create_member_response')->nullable();
         });
     }
 
@@ -29,6 +30,7 @@ class AddMembershiptypeSecondarycustomerdataToCustomerTable extends Migration
         Schema::table('customer', function (Blueprint $table) {
             $table->dropColumn('membership_type');
             $table->dropColumn('secondary_customer_data');
+            $table->dropColumn('create_member_response');
         });
     }
 }

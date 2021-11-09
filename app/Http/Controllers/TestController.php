@@ -8,18 +8,49 @@ use App\customer;
 use App\Country;
 use URL;
 use Illuminate\Support\Facades\Config;
+use App\Traits\SalesForceApiTrait;
+use App\Traits\CustomerTrait;
+use App\Traits\StripeSubscriptionTrait;
 
 class TestController extends Controller
 {
+    use StripeSubscriptionTrait;
+    use SalesForceApiTrait;
+    use CustomerTrait;
+
+    public $appEnvironment;
+    public $salesForceUsername;
+    public $salesForcePassword;
+    public $salesForceClientId;
+    public $salesForceClientSecret;
+    public $salesForceBaseUrl;
+    public $salesForceToken;
+    public $salesForceTokenUrl;
+
+    public function __construct()
+    {
+        $this->appEnvironment = getAppEnvironment() == 'production' ? 'production' : 'sandbox';
+        $this->salesForceUsername = getSalesForceUsername($this->appEnvironment);
+        $this->salesForcePassword = getSalesForcePassword($this->appEnvironment);
+        $this->salesForceClientId = getSalesForceClientId($this->appEnvironment);
+        $this->salesForceClientSecret = getSalesForceClientSecret($this->appEnvironment);
+        $this->salesForceBaseUrl = getSalesForceBaseUrl($this->appEnvironment);
+        $this->salesForceToken = getSalesForceToken($this->appEnvironment);
+        $this->salesForceTokenUrl = getSalesForceTokenUrl($this->appEnvironment);
+        // dd($this->salesForceTokenUrl, $this->salesForceToken, $this->salesForceBaseUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword);
+
+    }
 
     public function index()
     {
         $USDKey = Config::get('services.stripe.secret');
         $EURGBPKey = Config::get('services.stripe.EUR_GBP_secret');
+
         $USDPlans = getThePlans($USDKey);
         $EURGBPPlans = getThePlans($EURGBPKey);
 
         $plans = array_merge($USDPlans, $EURGBPPlans);
+
         return view('test3', compact('plans'));
     }
 
@@ -115,61 +146,12 @@ class TestController extends Controller
 
         $lead_data = json_encode($l_data);
 
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
+        $leadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $lead_data);
+        $l_id = $leadResponse['lead_data'];
+        $http_status = $leadResponse['http_status'];
 
-        /* token gererate code start -- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /* token generate code over */
-
-        /*--- lead create code---- */
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $lead_data,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
-
-        $lead_response = curl_exec($curl);
-        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        curl_close($curl);
-        $lead_response;
-        $l_id = json_decode($lead_response, true);
         if (isset($l_id['id'])) {
             $lead_id = $l_id['id'];
 
@@ -189,14 +171,10 @@ class TestController extends Controller
     public function individual_checkout(Request $request)
     {
 
-
-        $paymentMethod = $request->payment_method;
-        $customerData = customer::select('id')->where('email', $request->email)->get()->toArray();
-        $customer = customer::find($customerData[0]['id']);
-        $customer->createOrGetStripeCustomer();
-        $customer->addPaymentMethod($paymentMethod);
-        // $subscription = $customer->newSubscription('default', 'price_1JmYAsSEI23rpgD8mubPZlkc')->create($paymentMethod);
-        $subscription = $customer->newSubscription('default', $request->price_id)->create($paymentMethod);
+        $customerDataForStripe = $this->prepareDataToUpdate($request);
+        $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id, $customerDataForStripe);
+        $subscription = $subscriptionResponse['subscription_response'];
+        $customerId = $subscriptionResponse['customer_id'];
 
         if ($request->currency == "USD") {
             $key = Config::get('services.stripe.secret');
@@ -220,10 +198,11 @@ class TestController extends Controller
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
         $datas['product_name'] = $request->product_name;
-        $datas['customer_id'] = $customer->id;
+        $datas['customer_id'] = $customerId;
         $datas['stripe_response'] = $stripeResponseEncoded;
 
-        $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
+        $this->updateCustomerData($customerId, $datas);
+        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 
         Country::where('code', $request->shipping_country)->increment('counts', 1);
         $data['customer_id']  = $request->customer_id;
@@ -253,33 +232,8 @@ class TestController extends Controller
         $data['frequently'] = $frequently;
         $data['lead_id'] = $request->lead_id;
 
-        /* token gererate code start -- */
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /* token generate code over */
         /*--- lead create code---- */
 
         $l_data = array(
@@ -313,32 +267,13 @@ class TestController extends Controller
 
         $lead_data = json_encode($l_data);
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $lead_data,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
+        $leadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $lead_data);
+        $lead_data = $leadResponse['lead_data'];
 
-        $lead_response = curl_exec($curl);
-        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-        $lead_response;
-        $lead_data = json_decode($lead_response, true);
         $u_datas['leadId'] = $lead_data['id'];
         $u_datas['lead_response'] = $lead_data;
-        $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($u_datas);
+        $this->updateCustomerData($customerId, $u_datas);
+        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($u_datas);
 
         /* --- lead code over ----*/
 
@@ -361,28 +296,12 @@ class TestController extends Controller
             $lead_responses = json_encode($lead_data);
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $lead_responses,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
+        // convert the lead into member for salesforce
+        $createMemberResponse = $this->createMember($token, $this->salesForceBaseUrl, $lead_responses);
 
-        $response = curl_exec($curl);
+        // update the customer in local database
+        $this->updateCustomerData($customerId, ['create_member_response' => json_encode($createMemberResponse), 'membership_type' => 'individual']);
 
-        curl_close($curl);
-        $response;
         return redirect('/success');
     }
 
@@ -488,32 +407,7 @@ class TestController extends Controller
         $data['country'] = $country;
         $data['frequently'] = $frequently;
 
-        /* token gererate code start -- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /* token generate code over */
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
         /* create lead */
 
@@ -540,31 +434,9 @@ class TestController extends Controller
         $dual_lead_data = json_encode($duallead_data);
 
         /*--- lead create code---- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $dual_lead_data,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                $token,
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
-
-        $dual_lead_response = curl_exec($curl);
-        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-        $d_response = json_decode($dual_lead_response, true);
-
+        $leadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $dual_lead_data);
+        $d_response = $leadResponse['lead_data'];
+        $http_status = $leadResponse['http_status'];
         if (isset($d_response)) {
             $data['lead_id'] = $d_response['id'];
         }
@@ -578,15 +450,18 @@ class TestController extends Controller
         return view('checkout1', compact('data'));
     }
 
+    /**
+     * This will create the dual subscription
+     *
+     * @param Request $request
+     * @return void
+     */
     public function dual_checkout(Request $request)
     {
-        $paymentMethod = $request->payment_method;
-        $customerData = customer::select('id')->where('email', $request->email)->get()->toArray();
-        $customer = customer::find($customerData[0]['id']);
-        $customer->createOrGetStripeCustomer();
-        $customer->addPaymentMethod($paymentMethod);
-        // $subscription = $customer->newSubscription('default', 'price_1JmYAsSEI23rpgD8mubPZlkc')->create($paymentMethod);
-        $subscription = $customer->newSubscription('default', $request->price_id)->create($paymentMethod);
+        $customerDataForStripe = $this->prepareDataToUpdate($request);
+        $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id, $customerDataForStripe);
+        $subscription = $subscriptionResponse['subscription_response'];
+        $customerId = $subscriptionResponse['customer_id'];
 
         if ($request->currency == "USD") {
             $key = Config::get('services.stripe.secret');
@@ -611,10 +486,11 @@ class TestController extends Controller
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
         $datas['product_name'] = $request->product_name;
-        $datas['customer_id'] = $customer->id;
+        $datas['customer_id'] = $customerId;
         $datas['stripe_response'] = $stripeResponseEncoded;
 
-        $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
+        $this->updateCustomerData($customerId, $datas);
+        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 
         Country::where('code', $request->shipping_country)->increment('counts', 1);
 
@@ -647,33 +523,7 @@ class TestController extends Controller
         $data['frequently'] = $frequently;
         $data['lead_id'] = $request->lead_id;
 
-        /* token gererate code start -- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /* token generate code over */
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
         /*--- lead create code---- */
 
@@ -708,32 +558,12 @@ class TestController extends Controller
 
         $dual_lead_data = json_encode($duallead_data);
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $dual_lead_data,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
+        $lead_datas = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $dual_lead_data);
+        $ud_datas['leadId'] = $lead_datas['lead_data']['id'];
+        $ud_datas['lead_response'] = $lead_datas;
 
-        $dual_lead_response = curl_exec($curl);
-        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-        $dual_lead_response;
-        $lead_datas = json_decode($dual_lead_response, true);
-        $ud_datas['leadId'] = $lead_datas['id'];
-        $ud_datas['lead_response'] = $dual_lead_response;
-        $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($ud_datas);
+        $this->updateCustomerData($customerId, $ud_datas);
+        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($ud_datas);
 
         /* --- lead code over ----*/
 
@@ -756,32 +586,24 @@ class TestController extends Controller
             $lead_responses = json_encode($lead_data);
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $lead_responses,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-            ),
-        ));
+        $createMemberResponse = $this->createMember($token, $this->salesForceBaseUrl, $lead_responses);
 
-        $dual_response = curl_exec($curl);
+        $this->updateCustomerData($customerId, [
+            'create_member_response' => $createMemberResponse,
+            'membership_type' => 'dual',
+            'secondary_customer_data' => $dual_lead_data
+        ]);
 
-        curl_close($curl);
-        $dual_response;
         /* End member */
         return redirect('/success');
     }
 
+    /**
+     * This will generate the salesforce lead and send to gift checkout form
+     *
+     * @param Request $request
+     * @return view
+     */
     public function gifting(Request $request)
     {
 
@@ -961,13 +783,23 @@ class TestController extends Controller
         $data['lead_id'] = $lead_datas['id'];
 
         /* lead create over */
-
+        $data['intent'] = $customer->createSetupIntent(); // intent setup for stripe
 
         return view('checkout1', compact('data'));
     }
 
+    /**
+     * This will create the gift subscription
+     *
+     * @param Request $request
+     * @return redirect
+     */
     public function gift_checkout(Request $request)
     {
+
+        $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id);
+        $subscription = $subscriptionResponse['subscription_response'];
+        $customerId = $subscriptionResponse['customer_id'];
 
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
