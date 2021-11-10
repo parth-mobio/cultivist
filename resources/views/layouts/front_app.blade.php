@@ -245,8 +245,6 @@
     </style>
     <script type="text/javascript">
         $(document).ready(function() {
-            //var check_radio  = $("input:radio[name='no']:checked").val();
-
 
             $('#contact_form').validate({ // initialize the plugin
                 rules: {
@@ -265,6 +263,9 @@
                         required: true,
                         digits: true
                     },
+                    shipping_country: {
+                        required: true
+                    }
                 }
             });
 
@@ -300,6 +301,9 @@
                         required: true,
                         digits: true
                     },
+                    shipping_country: {
+                        required: false
+                    }
                 }
             });
 
@@ -317,15 +321,18 @@
                         required: true,
 
                     },
-                    Startdategift: {
-                        required: '#no[value="no"]:checked',
-                        date: true,
+                    shipping_country: {
+                        required: false
+                    }
+                    // Startdategift: {
+                    //     required: '#no[value="no"]:checked',
+                    //     date: true,
 
-                    },
+                    // },
                 },
-                messages: {
-                    Startdategift: 'Please select a date',
-                },
+                // messages: {
+                //     Startdategift: 'Please select a date',
+                // },
             });
 
             //Close the alert messages in 15 seconds
@@ -374,6 +381,130 @@
                 }
 
             });
+
+            var country = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'MC', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'ES', 'SE', 'CH'];
+
+            $('.ship_country').change(function() {
+                var shipping_country = $('.ship_country option:selected').attr('code');
+                $('.ship_country option:selected').val(shipping_country);
+                $('#contact_form').find('#shipping_country_code').val(shipping_country);
+
+                var shipping_country_id = $('.ship_country option:selected').attr('country_id');
+                $('#contact_form').find('#shipping_country_id').val(shipping_country_id);
+
+                setIndividualShipping(shipping_country, country);
+
+            });
+
+            $('.ship_country_d').change(function() {
+                var shipping_country = $('.ship_country_d option:selected').attr('code');
+
+                $('.ship_country option:selected').val(shipping_country);
+                $('#dual_form').find('#shipping_country_code').val(shipping_country);
+
+                var shipping_country_id = $('.ship_country_d option:selected').attr('country_id');
+                $('#dual_form').find('#shipping_country_id').val(shipping_country_id);
+
+                setDualShipping(shipping_country, country);
+            });
+
+            $('.ship_country_g').change(function() {
+                var shipping_country = $('.ship_country_g option:selected').attr('code');
+                $('.ship_country option:selected').val(shipping_country);
+                $('#gift_form').find('#shipping_country_code').val(shipping_country);
+
+                var shipping_country_id = $('.ship_country_g option:selected').attr('country_id');
+                $('#gift_form').find('#shipping_country_id').val(shipping_country_id);
+
+                setGiftShipping(shipping_country, country);
+            });
+
+            function setIndividualShipping(shipping_country, country) {
+                if (shipping_country === 'GB') {
+                    var product_id = $('#gbp_product_id').val();
+                    var product_price = $('#gbp_product_price').val();
+                    $('#contact_form').find('#checkout_product_id').val(product_id);
+                    $('#contact_form').find('#product_price').val(product_price);
+                    $('.price').text('£' + product_price);
+                    $('.total_price').text('£' + product_price);
+                    $('#contact_form').find('#currency').val('GBP');
+
+                } else if (jQuery.inArray(shipping_country, country) !== -1) {
+                    var product_id = $('#uk_product_id').val();
+                    var product_price = $('#uk_product_price').val();
+                    $('#contact_form').find('#checkout_product_id').val(product_id);
+                    $('#contact_form').find('#product_price').val(product_price);
+                    $('.price').text('€' + product_price);
+                    $('.total_price').text('€' + product_price);
+                    $('#contact_form').find('#currency').val('EUR');
+                } else {
+                    var def_product_id = $('#product_id').val();
+                    var def_product_price = $('#pro_price').val();
+                    $('#contact_form').find('#checkout_product_id').val(def_product_id);
+                    $('#contact_form').find('#product_price').val(def_product_price);
+                    $('.price').text('$' + def_product_price);
+                    $('.total_price').text('$' + def_product_price);
+                    $('#contact_form').find('#currency').val('USD');
+                }
+            }
+
+            function setDualShipping(shipping_country, country) {
+                if (shipping_country === 'GB') {
+                    var product_id = $('#gbp_product_id_d').val();
+                    var product_price = $('#gbp_product_price_d').val();
+                    $('#dual_form').find('#checkout_product_id').val(product_id);
+                    $('#dual_form').find('#product_price').val(product_price);
+                    $('.price_d').text('£' + product_price);
+                    $('.total_price_d').text('£' + product_price);
+                    $('#dual_form').find('#currency').val('GBP');
+
+                } else if (jQuery.inArray(shipping_country, country) !== -1) {
+                    var product_id = $('#uk_product_id_d').val();
+                    var product_price = $('#uk_product_price_d').val();
+                    $('#dual_form').find('#checkout_product_id').val(product_id);
+                    $('#dual_form').find('#product_price').val(product_price);
+                    $('.price_d').text('€' + product_price);
+                    $('.total_price_d').text('€' + product_price);
+                    $('#dual_form').find('#currency').val('EUR');
+                } else {
+                    var def_product_id = $('#product_id_d').val();
+                    var def_product_price = $('#pro_price_d').val();
+                    $('#dual_form').find('#checkout_product_id').val(def_product_id);
+                    $('#dual_form').find('#product_price').val(def_product_price);
+                    $('.price_d').text('$' + def_product_price);
+                    $('.total_price_d').text('$' + def_product_price);
+                    $('#dual_form').find('#currency').val('USD');
+                }
+            }
+
+            function setGiftShipping(shipping_country, country) {
+                if (shipping_country === 'GB') {
+                    var product_id = $('#gbp_product_id_g').val();
+                    var product_price = $('#gbp_product_price_g').val();
+                    $('#gift_form').find('#checkout_product_id').val(product_id);
+                    $('#gift_form').find('#product_price').val(product_price);
+                    $('.price_g').text('£' + product_price);
+                    $('.total_price_g').text('£' + product_price);
+                    $('#gift_form').find('#currency').val('GBP');
+
+                } else if (jQuery.inArray(shipping_country, country) !== -1) {
+                    var product_id = $('#uk_product_id_g').val();
+                    var product_price = $('#uk_product_price_g').val();
+                    $('#gift_form').find('#checkout_product_id').val(product_id);
+                    $('#gift_form').find('#product_price').val(product_price);
+                    $('.price_g').text('€' + product_price);
+                    $('.total_price_g').text('€' + product_price);
+                    $('#gift_form').find('#currency').val('EUR');
+                } else {
+                    var def_product_id = $('#product_id_g').val();
+                    var def_product_price = $('#pro_price_g').val();
+                    $('#gift_form').find('#checkout_product_id').val(def_product_id);
+                    $('#gift_form').find('#product_price').val(def_product_price);
+                    $('.price_g').text('$' + def_product_price);
+                    $('.total_price_g').text('$' + def_product_price);
+                    $('#gift_form').find('#currency').val('USD');
+                }
+            }
         });
 
         $(document).ready(function() {
@@ -402,6 +533,7 @@
                     $('#gbp_product_id').val(planDetails.yearlyProductID);
                     $('#gbp_price_id').val(planDetails.yearlyPlanID);
                 <?php }; ?>
+                $('.ship_country').trigger('change');
             });
 
             $('.month').click(function() {
@@ -425,11 +557,11 @@
                     $('#gbp_product_price').val(planDetails.monthlyProductAmount);
                     $('#gbp_price_id').val(planDetails.monthlyPlanID);
                 <?php }; ?>
+                $('.ship_country').trigger('change');
             });
 
             // Dual Membership Form Yearly and Monthly data
             $('.year_d').click(function() {
-
                 var price = $(this).attr('data-value');
                 var pay_name4 = $(this).attr('data-name');
                 var uk_price_d = $(this).attr('data-uk');
@@ -456,10 +588,10 @@
                     $('#gbp_product_id_d').val(planDetails.yearlyProductIDDualGBP);
                     $('#gbp_price_id_d').val(planDetails.yearlyPlanIDDualGBP);
                 <?php }; ?>
+                $('.ship_country_d').trigger('change');
             });
 
             $('.month_d').click(function() {
-
                 var price3 = $(this).attr('data-value');
                 var pay_name5 = $(this).attr('data-name');
                 $('#pro_price_d').val();
@@ -480,45 +612,40 @@
                     $('#gbp_product_price_d').val(planDetails.monthlyProductAmountDualGBP);
                     $('#gbp_price_id_d').val(planDetails.monthlyPlanIDDualGBP);
                 <?php }; ?>
+                $('.ship_country_d').trigger('change');
             });
 
             // Gift Membership Form Yearly and Monthly data
 
             $('.year_g').click(function() {
                 var price = $(this).attr('data-value');
-                var pay_name2 = $(this).attr('data-name');
-                var snap_day_g = $(this).attr('data-interval');
-                var uk_price_g = $(this).attr('data-uk');
-                var gbp_price_g = $(this).attr('data-gbp');
+                var pay_name4 = $(this).attr('data-name');
+                var uk_price_d = $(this).attr('data-uk');
+                var gbp_price_d = $(this).attr('data-gbp');
 
-                $('#pro_price_g').val('');
-                $('#pro_price_g').val(price);
-                $('#payment_name_g').val('');
-                $('#payment_name_g').val(pay_name2);
-                $('#price_point_id_g').val('996066');
-                $('#snap_day_g').val(snap_day_g);
-                $('#uk_product_price_g').val(uk_price_g);
-                $('#gbp_product_price_g').val(gbp_price_g);
-                $('#uk_price_point_id_g').val('996068');
-                $('#gbp_price_point_id_g').val('1197866');
-                // alert($('#uk_price_point_id').val());
-                // alert($('#price_point_id_g').val());
-            });
+                $('#pro_price_d').val('');
+                $('#pro_price_d').val(price);
+                $('#payment_name_d').val('');
+                $('#payment_name_d').val(pay_name4);
+                $('#uk_product_price_g').val(uk_price_d);
+                $('#gbp_product_price_g').val(gbp_price_d);
 
-            $('.month_g').click(function() {
-                var price1 = $(this).attr('data-value');
-                var pay_name3 = $(this).attr('data-name');
-                var snap_day_g = $(this).attr('data-interval');
+                <?php if (isset($plans)) { ?>
+                    var planDetails = <?php echo json_encode($plans) ?>;
 
+                    $('#product_name_g').val(planDetails.yearlyProductNameGiftUSD);
+                    $('#product_id_g').val(planDetails.yearlyProductIDGiftUSD);
+                    $('#price_id_g').val(planDetails.yearlyPlanIDGiftUSD);
 
-                $('#price_point_id_g').val('1188338');
-                $('#pro_price_g').val();
-                $('#pro_price_g').val(price1);
-                $('#payment_name_g').val('');
-                $('#payment_name_g').val(pay_name3);
-                //    $('#price_point_id_g').val('1188338');
-                $('#snap_day_g').val(snap_day_g);
-                // alert($('#payment_name_g').val());
+                    $('#uk_product_name_g').val(planDetails.yearlyProductNameGiftEUR);
+                    $('#uk_product_id_g').val(planDetails.yearlyProductIDGiftEUR);
+                    $('#uk_price_id_g').val(planDetails.yearlyPlanIDGiftEUR);
+
+                    $('#gbp_product_name_g').val(planDetails.yearlyProductNameGiftGBP);
+                    $('#gbp_product_id_g').val(planDetails.yearlyProductIDGiftGBP);
+                    $('#gbp_price_id_g').val(planDetails.yearlyPlanIDGiftGBP);
+                <?php }; ?>
+                $('.ship_country_g').trigger('change');
             });
         });
     </script>
@@ -685,7 +812,7 @@
             return true;
         }
     </script>
-    <!-- <?php //$form_submit = URL::asset('form-submit'); 
+    <!-- <?php //$form_submit = URL::asset('form-submit');
             ?>
     <script type="text/javascript">
         $(document).ready(function() {
@@ -694,7 +821,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php //echo $form_submit; 
+                    url: "<?php //echo $form_submit;
                             ?>",
                     dataType: 'json',
                     headers: {
@@ -713,7 +840,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php //echo $form_submit; 
+                    url: "<?php //echo $form_submit;
                             ?>",
                     dataType: 'json',
                     headers: {
@@ -732,7 +859,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: "<?php //echo $form_submit; 
+                    url: "<?php //echo $form_submit;
                             ?>",
                     dataType: 'json',
                     headers: {

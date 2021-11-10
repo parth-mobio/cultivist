@@ -37,8 +37,6 @@ class TestController extends Controller
         $this->salesForceBaseUrl = getSalesForceBaseUrl($this->appEnvironment);
         $this->salesForceToken = getSalesForceToken($this->appEnvironment);
         $this->salesForceTokenUrl = getSalesForceTokenUrl($this->appEnvironment);
-        // dd($this->salesForceTokenUrl, $this->salesForceToken, $this->salesForceBaseUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword);
-
     }
 
     public function index()
@@ -51,25 +49,30 @@ class TestController extends Controller
 
         $plans = array_merge($USDPlans, $EURGBPPlans);
 
-        return view('test3', compact('plans'));
+        $country = Country::orderBy('name', 'ASC')->get();
+        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
+        $data['country'] = $country;
+        $data['frequently'] = $frequently;
+
+        return view('test3', compact('plans', 'data'));
     }
 
     public function individual(Request $request)
     {
+        $productDetails = $this->getProductDetails($request->currency, $request->all());
+
         $rule =
             [
                 'email' => 'required|email',
                 'first_name' => 'required',
                 'last_name' => 'required',
-                'phone_number' => 'required'
+                'phone_number' => 'required',
+                'shipping_country_code' => 'required'
             ];
         $validator = Validator::make($request->all(), $rule);
         if ($validator->fails()) {
             return redirect(url()->previous())->withErrors($validator);
         }
-
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
         $customer = new customer();
 
@@ -81,47 +84,50 @@ class TestController extends Controller
                 'firstname' => $request->first_name,
                 'lastname'  => $request->last_name,
                 'phone_number' => $request->phone_number,
-                'product_id'   => $request->product_id,
-                'product_name' => $request->product_name,
+                'product_id'   => $productDetails['product_id'],
+                'product_name' => $productDetails['product_name'],
                 'product_handle' => $request->product_handle,
-                'product_price' => $request->product_price,
+                'product_price' => $productDetails['product_price'],
+                'country_val' => $request->shipping_country_code
             ]);
+            $customerId = $customerData->id;
         } else {
 
             $customer->email = $request->email;
             $customer->firstname = $request->first_name;
             $customer->lastname  = $request->last_name;
             $customer->phone_number = $request->phone_number;
-            $customer->product_id   = $request->product_id;
-            $customer->product_name = $request->product_name;
+            $customer->product_id   = $productDetails['product_id'];
+            $customer->product_name = $productDetails['product_name'];
             $customer->product_handle = $request->product_handle;
-            $customer->product_price = $request->product_price;
+            $customer->product_price = $productDetails['product_price'];
+            $customer->country_val = $request->shipping_country_code;
             $customer->save();
+            $customerId = $customer->id;
         }
 
-        $data['customer_id']  = "";
+        $country = Country::orderBy('name', 'ASC')->get();
+        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
+        $data['customer_id']  = $customerId;
         $data['customer_first_name'] = $request->first_name;
         $data['customer_last_name']  = $request->last_name;
         $data['customer_email']  = $request->email;
         $data['phone_number']   = $request->phone_number;
         $data['product_handle'] = $request->product_handle;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
+        $data['product_id']  = $productDetails['product_id'];
+        $data['product_price'] = $productDetails['product_price'];
         $data['url'] = Url::asset('individual_checkout');
         $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
-        $data['price_id'] = $request->price_id;
+        $data['product_name'] = $productDetails['product_name'];
+        $data['price_id'] = $productDetails['price_id'];
         $data['exist'] = "no";
-        $data['uk_product_name'] = $request->uk_product_name;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_id'] = $request->uk_price_id;
-        $data['gbp_product_name'] = $request->gbp_product_name;
-        $data['gbp_product_id']  = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_id'] = $request->gbp_price_id;
+        $data['currency'] = $request->currency;
         $data['country'] = $country;
         $data['frequently'] = $frequently;
+        $data['shipping_country_id'] = $request->shipping_country_id;
+        $data['final_price'] = Config::get('constants.currency_symbols.'.$request->currency).$productDetails['product_price'];
+
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
         $l_data = array(
             'phone' => $request->phone_number,
@@ -137,7 +143,7 @@ class TestController extends Controller
             'memberlastname' => '',
             'memberphone' => '',
             'memberemail' => '',
-            'stripeproductid' => $request->product_id,
+            'stripeproductid' => $productDetails['product_id'],
             'giftrecipientfirstname' => '',
             'giftrecipientlastname' => '',
             'giftrecipientphone' => '',
@@ -146,7 +152,6 @@ class TestController extends Controller
 
         $lead_data = json_encode($l_data);
 
-        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
         $leadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $lead_data);
         $l_id = $leadResponse['lead_data'];
@@ -160,16 +165,21 @@ class TestController extends Controller
             $data['lead_id'] = $lead_id;
         }
 
+        $customer = customer::find($customerId);
         $data['intent'] = $customer->createSetupIntent();
+
+        $eurGbpCountries = array_merge(Config::get('constants.eur_countries'),Config::get('constants.gbp_countries'));
+        $data['stripe_key'] = in_array($request->shipping_country_code, $eurGbpCountries) ? Config::get('services.stripe.EUR_GBP_key') : Config::get('services.stripe.key');
         if ($http_status == Config::get('constants.status_error_code')) {
             return redirect('/')->with('error', $l_id['message']);
         }
         return view('checkout1', compact('data'));
     }
 
-
     public function individual_checkout(Request $request)
     {
+        $request->shipping_country_name = $this->getCountryName($request->shipping_country_id);
+        $request->billing_country_name = $this->getCountryName($request->billing_country_id);
 
         $customerDataForStripe = $this->prepareDataToUpdate($request);
         $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id, $customerDataForStripe);
@@ -193,8 +203,6 @@ class TestController extends Controller
         }
         $stripeResponseEncoded = json_encode($stripeResponse);
         $stripeResponseDecoded = json_decode($stripeResponseEncoded, true);
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
         $datas['product_name'] = $request->product_name;
@@ -202,35 +210,8 @@ class TestController extends Controller
         $datas['stripe_response'] = $stripeResponseEncoded;
 
         $this->updateCustomerData($customerId, $datas);
-        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 
         Country::where('code', $request->shipping_country)->increment('counts', 1);
-        $data['customer_id']  = $request->customer_id;
-        $data['customer_first_name'] = $request->first_name;
-        $data['customer_last_name']  = $request->last_name;
-        $data['customer_email']  = $request->email;
-        $data['phone_number']   = $request->phone_number;
-        $data['product_handle'] = $request->product_handle;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
-        $data['url'] =   $request->url;
-        $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
-        $data['price_id'] = $request->price_id;
-        $data['exist'] = $request->customer_exist;
-        $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
-        $data['uk_product_name'] = $request->uk_product_name;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_id'] = $request->uk_price_id;
-        $data['gbp_product_name'] = $request->gbp_product_name;
-        $data['gbp_product_id'] = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_id'] = $request->gbp_price_id;
-        $data['country'] = $country;
-        $data['frequently'] = $frequently;
-        $data['lead_id'] = $request->lead_id;
 
         $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
@@ -245,12 +226,12 @@ class TestController extends Controller
             'billingcity' => $request->billing_city == null ? $request->shipping_city : $request->billing_city,
             'billingstate' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
             'billingzip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-            'billingcountry' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
+            'billingcountry' => $request->billing_country_name == null ? $request->shipping_country_name : $request->billing_country_name,
             'mailingstreet' => $request->shipping_address,
             'mailingcity' => $request->shipping_city,
             'mailingstate' => $request->shipping_state,
             'mailingzip'  => $request->shipping_zipcode,
-            'mailingcountry' => $request->shipping_country,
+            'mailingcountry' => $request->shipping_country_name,
             'memberfirstname' => '',
             'memberlastname' => '',
             'memberphone' => '',
@@ -273,22 +254,18 @@ class TestController extends Controller
         $u_datas['leadId'] = $lead_data['id'];
         $u_datas['lead_response'] = $lead_data;
         $this->updateCustomerData($customerId, $u_datas);
-        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($u_datas);
-
-        /* --- lead code over ----*/
-
 
         /* code for create member  */
 
         if (isset($stripeResponseDecoded)) {
-            $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
+            $lead_data['obj']['stripeuserid'] = $stripeResponseDecoded['id'];
             $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', $stripeResponseDecoded['start_date']);
             $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
             $lead_data['obj']['paymentfrequency'] = '';
             $lead_data['obj']['accountcurrency'] = $request->currency;
             $lead_responses = json_encode($lead_data);
         } else {
-            $lead_data['obj']['stripesubscriptionid'] = '';
+            $lead_data['obj']['stripeuserid'] = '';
             $lead_data['obj']['subscriptionstartdate'] = '';
             $lead_data['obj']['membershipfee'] = '';
             $lead_data['obj']['paymentfrequency'] = '';
@@ -316,7 +293,8 @@ class TestController extends Controller
             'detail_02_email' => 'required|email',
             'detail_02_first_name' => 'required',
             'detail_02_last_name' => 'required',
-            'detail_02_phone_number' => 'required'
+            'detail_02_phone_number' => 'required',
+            'shipping_country_id' => 'required'
         ];
         $customMessages = [
             'email.required' => 'The email field is required.',
@@ -328,7 +306,8 @@ class TestController extends Controller
             'detail_02_email.email' => 'The email must be a valid email address.',
             'detail_02_first_name.required'  => 'The first name is required',
             'detail_02_last_name.required'  => 'The last name is required.',
-            'detail_02_phone_number.required' => 'The phone number is required.'
+            'detail_02_phone_number.required' => 'The phone number is required.',
+            'shipping_country_id.required' => 'Please select the shipping country.'
         ];
 
         $validator = Validator::make($request->all(), $validatedData, $customMessages);
@@ -347,6 +326,9 @@ class TestController extends Controller
             "detail_02_phone_number" => $request['detail_02_phone_number'],
         ];
         $cardHolderTwoEncodedData = json_encode($cardHolderTwoData);
+
+        $productDetails = $this->getProductDetails($request->currency, $request->all());
+
         $customer = new customer();
         $customerData = $customer->where('email', $request->email)->get()->first();
 
@@ -356,26 +338,30 @@ class TestController extends Controller
                 'firstname' => $request->first_name,
                 'lastname'  => $request->last_name,
                 'phone_number' => $request->phone_number,
-                'product_id'   => $request->product_id,
-                'product_name' => $request->product_name,
+                'product_id'   => $productDetails['product_id'],
+                'product_name' => $productDetails['product_name'],
                 'product_handle' => $request->product_handle,
-                'product_price' => $request->product_price,
+                'product_price' => $productDetails['product_price'],
                 'membership_type' => "dual",
                 'secondary_customer_data' => $cardHolderTwoEncodedData,
+                'country_val' => $request->shipping_country_code
             ]);
+            $customerId = $customerData->id;
         } else {
 
             $customer->email = $request->email;
             $customer->firstname = $request->first_name;
             $customer->lastname  = $request->last_name;
             $customer->phone_number = $request->phone_number;
-            $customer->product_id   = $request->product_id;
-            $customer->product_name = $request->product_name;
+            $customer->product_id   = $productDetails['product_id'];
+            $customer->product_name = $productDetails['product_name'];
             $customer->product_handle = $request->product_handle;
-            $customer->product_price = $request->product_price;
+            $customer->product_price = $productDetails['product_price'];
             $customer->membership_type = "dual";
             $customer->secondary_customer_data = $cardHolderTwoEncodedData;
+            $customer->country_val = $request->shipping_country_code;
             $customer->save();
+            $customerId = $customer->id;
         }
 
         $data['customer_id']  = "";
@@ -384,28 +370,23 @@ class TestController extends Controller
         $data['customer_email']  = $request->email;
         $data['phone_number']   = $request->phone_number;
         $data['product_handle'] = $request->product_handle;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
+        $data['product_id']  = $productDetails['product_id'];
+        $data['product_price'] = $productDetails['product_price'];
         $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
+        $data['product_name'] = $productDetails['product_name'];
+        $data['price_id'] = $productDetails['price_id'];
         $data['url'] = Url::asset('dual_checkout');
-        $data['price_id'] = $request->price_id;
         $data['exist'] = "no";
         $data['email_dual_member'] = $request->detail_02_email;
         $data['first_name_dual_member'] = $request->detail_02_first_name;
         $data['last_name_dual_member'] = $request->detail_02_last_name;
         $data['phone_dual_member'] = $request->detail_02_phone_number;
         $data['snap_day'] = $request->snap_day;
-        $data['uk_product_name'] = $request->uk_product_name;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_id'] = $request->uk_price_id;
-        $data['gbp_product_name'] = $request->gbp_product_name;
-        $data['gbp_product_id']  = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_id'] = $request->gbp_price_id;
         $data['country'] = $country;
         $data['frequently'] = $frequently;
+        $data['shipping_country_id'] = $request->shipping_country_id;
+        $data['currency'] = $request->currency;
+        $data['final_price'] = Config::get('constants.currency_symbols.'.$request->currency).$productDetails['product_price'];
 
         $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
@@ -424,7 +405,7 @@ class TestController extends Controller
             'memberlastname' => $request->detail_02_last_name,
             'memberphone' => $request->detail_02_phone_number,
             'memberemail' => $request->detail_02_email,
-            'stripeproductid' => $request->product_id,
+            'stripeproductid' => $productDetails['product_id'],
             'giftrecipientfirstname' => '',
             'giftrecipientlastname' => '',
             'giftrecipientphone' => '',
@@ -433,7 +414,6 @@ class TestController extends Controller
 
         $dual_lead_data = json_encode($duallead_data);
 
-        /*--- lead create code---- */
         $leadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $dual_lead_data);
         $d_response = $leadResponse['lead_data'];
         $http_status = $leadResponse['http_status'];
@@ -441,12 +421,16 @@ class TestController extends Controller
             $data['lead_id'] = $d_response['id'];
         }
 
-        /* --- lead code over ----*/
+        $customer = customer::find($customerId);
+        $eurGbpCountries = array_merge(Config::get('constants.eur_countries'),Config::get('constants.gbp_countries'));
 
+        $data['stripe_key'] = in_array($request->shipping_country_code, $eurGbpCountries) ? Config::get('services.stripe.EUR_GBP_key') : Config::get('services.stripe.key');
         $data['intent'] = $customer->createSetupIntent();
+
         if ($http_status == Config::get('constants.status_error_code')) {
             return redirect('/')->with('dual-error', $d_response['message']);
         }
+
         return view('checkout1', compact('data'));
     }
 
@@ -458,7 +442,10 @@ class TestController extends Controller
      */
     public function dual_checkout(Request $request)
     {
+        $request->shipping_country_name = $this->getCountryName($request->shipping_country_id);
+        $request->billing_country_name = $this->getCountryName($request->billing_country_id);
         $customerDataForStripe = $this->prepareDataToUpdate($request);
+
         $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id, $customerDataForStripe);
         $subscription = $subscriptionResponse['subscription_response'];
         $customerId = $subscriptionResponse['customer_id'];
@@ -490,38 +477,8 @@ class TestController extends Controller
         $datas['stripe_response'] = $stripeResponseEncoded;
 
         $this->updateCustomerData($customerId, $datas);
-        // $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
 
         Country::where('code', $request->shipping_country)->increment('counts', 1);
-
-        $data['customer_id']  = $request->customer_id;
-        $data['customer_first_name'] = $request->first_name;
-        $data['customer_last_name']  = $request->last_name;
-        $data['customer_email']  = $request->email;
-        $data['phone_number']   = $request->phone_number;
-        $data['product_handle'] = $request->product_handle;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
-        $data['url'] =   $request->url;
-        $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
-        $data['price_id'] = $request->price_id;
-        $data['exist'] = $request->customer_exist;
-        $data['email_dual_member'] = $request->email_dual_member;
-        $data['first_name_dual_member'] = $request->first_name_dual_member;
-        $data['last_name_dual_member']  = $request->last_name_dual_member;
-        $data['phone_dual_member']      = $request->detail_02_phone_number;
-        $data['uk_product_name'] = $request->uk_product_name;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_id'] = $request->uk_price_id;
-        $data['gbp_product_name'] = $request->gbp_product_name;
-        $data['gbp_product_id'] = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_id'] = $request->gbp_price_id;
-        $data['country'] = $country;
-        $data['frequently'] = $frequently;
-        $data['lead_id'] = $request->lead_id;
 
         $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
@@ -572,14 +529,14 @@ class TestController extends Controller
         /* code for create member in dual */
 
         if (isset($stripeResponseDecoded)) {
-            $lead_data['obj']['stripesubscriptionid'] = $stripeResponseDecoded['id'];
+            $lead_data['obj']['stripeuserid'] = $stripeResponseDecoded['id'];
             $lead_data['obj']['subscriptionstartdate'] = date('Y-m-d', $stripeResponseDecoded['start_date']);
             $lead_data['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
             $lead_data['obj']['paymentfrequency'] = '';
             $lead_data['obj']['accountcurrency'] = $request->currency;
             $lead_responses = json_encode($lead_data);
         } else {
-            $lead_data['obj']['stripesubscriptionid'] = '';
+            $lead_data['obj']['stripeuserid'] = '';
             $lead_data['obj']['subscriptionstartdate'] = '';
             $lead_data['obj']['membershipfee'] = '';
             $lead_data['obj']['paymentfrequency'] = '';
@@ -592,7 +549,7 @@ class TestController extends Controller
         $this->updateCustomerData($customerId, [
             'create_member_response' => $createMemberResponse,
             'membership_type' => 'dual',
-            'secondary_customer_data' => $dual_lead_data
+            'secondary_customer_data' => $lead_responses
         ]);
 
         /* End member */
@@ -607,15 +564,34 @@ class TestController extends Controller
      */
     public function gifting(Request $request)
     {
-
         $validatedData = [
             'Emailgift' => 'required|email',
             'Firstnamegift' => 'required',
             'Lastnamegift' => 'required',
-
+            'phone_number' => 'required',
+            'customer_email' => 'required|email',
+            'customer_first_name' => 'required',
+            'customer_last_name' => 'required',
+            'customer_phone_number' => 'required',
+            'shipping_country_id' => 'required',
         ];
 
-        $validator = Validator::make($request->all(), $validatedData);
+        $customMessages = [
+            'Emailgift.required' => 'The email field is required.',
+            'Emailgift.email'   => 'The email must be a valid email address.',
+            'Firstnamegift.required' => 'The first name field is required.',
+            'Lastnamegift.required'  => 'The last name field is required.',
+            'phone_number.required' => 'The phone number field is required.',
+            'customer_email.required'   => 'The email field is required.',
+            'customer_email.email' => 'The email must be a valid email address.',
+            'customer_first_name.required'  => 'The first name is required',
+            'customer_last_name.required'  => 'The last name is required.',
+            'customer_phone_number.required' => 'The phone number is required.',
+            'shipping_country_id.required' => 'Please select the shipping country.'
+        ];
+
+        $validator = Validator::make($request->all(), $validatedData, $customMessages);
+
         if ($validator->fails()) {
             Session()->flash('activeTab', 'gifting');
             return redirect(url()->previous() . '#gifting')->withErrors($validator);
@@ -624,43 +600,35 @@ class TestController extends Controller
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
+        $giftRecipientData = [
+            "gift_recipient_name" => $request['Emailgift'],
+            "gift_recipient_first_name" => $request['Firstnamegift'],
+            "gift_recipient_last_name" => $request['Lastnamegift'],
+            "gift_recipient_phone_number" => $request['phone_number'],
+        ];
+        $giftRecipientData = json_encode($giftRecipientData);
 
+        $productDetails = $this->getProductDetails($request->currency, $request->all());
 
-        $post_url1 = "https://the-cultivist-usa.chargify.com/customers.json?q=$request->customer_email";
-        $header1 = array(
-            "authorization: Basic aUlpVmJoYXZMbFRzMk80eE5KTDFtMFJ4NU9aWEhmVTRkNVBNZmZiNWI4azo="
-        );
-        $domain = "USA";
+        $customer = new customer();
+        $customerData = $customer->where('email', $request->customer_email)->get()->first();
 
+        if (isset($customerData) && $customerData != NULL) {
 
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $post_url1,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_POSTFIELDS => "{}",
-            CURLOPT_HTTPHEADER => $header1,
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            $error = "cURL Error #:" . $err;
+            $customer->where('email', $request->customer_email)->update([
+                'firstname' => $request->customer_first_name,
+                'lastname'  => $request->customer_last_name,
+                'phone_number' => $request->customer_phone_number,
+                'product_id'   => $request->product_id,
+                'product_name' => $request->product_name,
+                'product_handle' => $request->product_handle,
+                'product_price' => $request->product_price,
+                'membership_type' => "gift",
+                'secondary_customer_data' => $giftRecipientData,
+                'country_val' => $request->shipping_country_code
+            ]);
+            $customerId = $customerData->id;
         } else {
-            $response;
-        }
-
-        if ($response == "[]") {
-
             $customer = new customer();
             $customer->email = $request->customer_email;
             $customer->firstname = $request->customer_first_name;
@@ -670,10 +638,12 @@ class TestController extends Controller
             $customer->product_name = $request->product_name;
             $customer->product_handle = $request->product_handle;
             $customer->product_price = $request->product_price;
+            $customer->membership_type = "gift";
+            $customer->secondary_customer_data = $giftRecipientData;
+            $customer->country_val = $request->shipping_country_code;
             $customer->save();
+            $customerId = $customer->id;
         }
-
-
 
         $data['customer_id']  = "";
         $data['customer_first_name'] = $request->customer_first_name;
@@ -685,55 +655,24 @@ class TestController extends Controller
         $data['Firstnamegift']  = $request->Firstnamegift;
         $data['Lastnamegift']  = $request->Lastnamegift;
         $data['phone_number']   = $request->phone_number;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
+        $data['product_id']  = $productDetails['product_id'];
+        $data['product_price'] = $productDetails['product_price'];
         $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
+        $data['product_name'] = $productDetails['product_name'];
+        $data['price_id'] = $productDetails['price_id'];
         $data['product_handle'] = $request->product_handle;
         $data['url'] = Url::asset('gift_checkout');
         $data['exist'] = "no";
         $data['snap_day']  = $request->snap_day;
         $data['product_price_point_id'] = $request->product_price_point_id;
         $data['Startdategift'] = $request->Startdategift;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_point_id'] = $request->uk_price_point_id;
-        $data['gbp_product_id']  = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_point_id'] = $request->gbp_price_point_id;
         $data['country'] = $country;
         $data['frequently'] = $frequently;
+        $data['currency'] = $request->currency;
+        $data['shipping_country_id'] = $request->shipping_country_id;
+        $data['final_price'] = Config::get('constants.currency_symbols.'.$request->currency).$productDetails['product_price'];
 
-
-        /* token gererate code start -- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /*--- lead create code---- */
-
-
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
         $gift_l_data = array(
             'firstname' => $request->customer_first_name,
@@ -748,6 +687,7 @@ class TestController extends Controller
             'memberlastname' => '',
             'memberphone' => '',
             'memberemail' => '',
+            'stripeproductid' => $productDetails['product_id'],
             'giftrecipientfirstname' => $request->Firstnamegift,
             'giftrecipientlastname' => $request->Lastnamegift,
             'giftrecipientphone' => $request->phone_number,
@@ -756,35 +696,23 @@ class TestController extends Controller
         );
 
         $g_lead_data = json_encode($gift_l_data);
-        /* lead create gift */
-        $curl = curl_init();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $g_lead_data,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=tdG2nKgDEeu56Q1Yr4wGvQ'
-            ),
-        ));
+        $giftLeadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $g_lead_data);
+        $gift_lead_response = $giftLeadResponse['lead_data'];
+        $http_status = $giftLeadResponse['http_status'];
+        if ($http_status == Config::get('constants.status_error_code')) {
+            return redirect('/')->with('dual-error', $gift_lead_response['message']);
+        }
 
-        $gift_lead_response = curl_exec($curl);
+        if (isset($gift_lead_response['id'])) {
+            $data['lead_id'] = $gift_lead_response['id'];
+        }
 
-        curl_close($curl);
-        $gift_lead_response;
-        $lead_datas = json_decode($gift_lead_response, true);
-        $data['lead_id'] = $lead_datas['id'];
+        $customer = customer::find($customerId);
+        $eurGbpCountries = array_merge(Config::get('constants.eur_countries'),Config::get('constants.gbp_countries'));
 
-        /* lead create over */
-        $data['intent'] = $customer->createSetupIntent(); // intent setup for stripe
+        $data['stripe_key'] = in_array($request->shipping_country_code, $eurGbpCountries) ? Config::get('services.stripe.EUR_GBP_key') : Config::get('services.stripe.key');
+        $data['intent'] = $customer->createSetupIntent();
 
         return view('checkout1', compact('data'));
     }
@@ -797,275 +725,45 @@ class TestController extends Controller
      */
     public function gift_checkout(Request $request)
     {
+        $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
-        $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id);
+        $request->shipping_country_name = $this->getCountryName($request->shipping_country_id);
+        $request->billing_country_name = $this->getCountryName($request->billing_country_id);
+        $customerDataForStripe = $this->prepareDataToUpdate($request);
+        $subscriptionResponse = $this->createStripeSubscription($request->payment_method, $request->email, $request->price_id, $customerDataForStripe);
         $subscription = $subscriptionResponse['subscription_response'];
         $customerId = $subscriptionResponse['customer_id'];
+
+        if ($request->currency == "USD") {
+            $key = Config::get('services.stripe.secret');
+            $stripe = new \Stripe\StripeClient($key);
+            $stripeResponse = $stripe->subscriptions->retrieve(
+                $subscription->stripe_id,
+                []
+            );
+        } else {
+            $key = Config::get('services.stripe.EUR_GBP_secret');
+            $stripe = new \Stripe\StripeClient($key);
+            $stripeResponse = $stripe->subscriptions->retrieve(
+                $subscription->stripe_id,
+                []
+            );
+        }
+        $stripeResponseEncoded = json_encode($stripeResponse);
+        $stripeResponseDecoded = json_decode($stripeResponseEncoded, true);
 
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
-        if ($request->currency == "GBP") {
-            $post_url1 = "https://the-cultivist-uk-clone-clone.chargify.com/customers.json?q=$request->customer_email";
-            $header1 = array(
-                "authorization: Basic Z3gwb21rb1ZCclhhY3piWWswSENJYzhBaWNOa00yVXg1UkFvVXh0Nlk6MDAwVGhlQ3VsdGl2aXN0X1VwbGVycyM0Nw=="
-            );
-            $domain = "GBP";
-        } else if ($request->currency == "EUR") {
-            $post_url1 = "https://the-cultivist-uk-clone.chargify.com/customers.json?q=$request->customer_email";
-            $header1 = array(
-                "authorization: Basic TzV2bUNBam5QbmtBY3AzaXVBVHZmS3NkeEpGYTlIMXVTSzV2ZVgzOW9BOjAwMFRoZUN1bHRpdmlzdF9VcGxlcnMjNDc="
-            );
-            $domain = "UK";
-        } else {
-            $post_url1 = "https://the-cultivist-usa.chargify.com/customers.json?q=$request->customer_email";
-            $header1 = array(
-                "authorization: Basic aUlpVmJoYXZMbFRzMk80eE5KTDFtMFJ4NU9aWEhmVTRkNVBNZmZiNWI4azo="
-            );
-            $domain = "USA";
-        }
+        $datas['product_id'] = $request->product_id;
+        $datas['product_price'] = $request->product_price;
+        $datas['product_name'] = $request->product_name;
+        $datas['customer_id'] = $customerId;
+        $datas['stripe_response'] = $stripeResponseEncoded;
 
-
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $post_url1,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_POSTFIELDS => "{}",
-            CURLOPT_HTTPHEADER => $header1,
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            $error = "cURL Error #:" . $err;
-        } else {
-            $response;
-        }
-
-        if ($response == "[]") {
-            $customer = new customer();
-            $customer->email = $request->customer_email;
-            $customer->firstname = $request->customer_first_name;
-            $customer->lastname  = $request->customer_last_name;
-            $customer->phone_number = $request->customer_phone_number;
-            $customer->product_id   = $request->product_id;
-            $customer->product_name = $request->product_name;
-            $customer->product_handle = $request->product_handle;
-            $customer->product_price = $request->product_price;
-            $customer->save();
-
-            $datas['domain'] = $domain;
-            $datas['product_id'] = $request->product_id;
-            $datas['product_price'] = $request->product_price;
-            $datas['product_name'] = $request->product_name;
-            $customer = customer::where('email', $request->email)->orderBy('id', 'desc')->update($datas);
-        } else {
-            $request->customer_id  = $data['0']['customer']['id'];
-
-            $data_json = json_decode($response, true);
-            $datas['domain'] = $domain;
-            $datas['product_id'] = $request->product_id;
-            $datas['product_price'] = $request->product_price;
-            $datas['product_name'] = $request->product_name;
-            $datas['customer_id'] = $data_json['0']['customer']['id'];
-            $customer = customer::where('email', $request->customer_email)->orderBy('id', 'desc')->update($datas);
-
-            $request->customer_exist = "yes";
-        }
-
-        $expiry = explode("/", $request->expiry);
-        $ye = str_replace(' ', '', $expiry[1]);
-        $month = str_replace(' ', '', $expiry[0]);
-        $year = '20' . $ye;
-
-        if ($request->Startdategift != null) {
-            $date = date_create($request->Startdategift);
-            $dates = date_format($date, "Y-m-d");
-        } else {
-            $dates = null;
-        }
+        $this->updateCustomerData($customerId, $datas);
 
         Country::where('code', $request->shipping_country)->increment('counts', 1);
-
-        if ($request->customer_exist == "no") {
-            $post_data =  array(
-                'subscription' => array(
-                    "snap_day" => $request->snap_day == null ? '' : $request->snap_day,
-                    'product_id' => $request->product_id,
-                    'product_price_point_id' => $request->product_price_point_id,
-                    'customer_attributes' => array(
-                        'first_name' => $request->customer_first_name,
-                        'last_name' => $request->customer_last_name,
-                        'email' => $request->customer_email,
-                        'zip' => $request->shipping_zipcode,
-                        'state' => $request->shipping_state,
-                        'phone' => $request->customer_phone_number,
-                        'country' => $request->shipping_country,
-                        'city' => $request->shipping_city,
-                        'address_2' => NULL,
-                        'address' => $request->shipping_address,
-
-                    ),
-                    'credit_card_attributes' => array(
-                        'full_number' => $request->ccnumber,
-                        'expiration_month' => $month,
-                        'expiration_year' => $year,
-                        'cvv' => $request->cvv,
-                        'first_name' => $request->card_name,
-                        'billing_zip' => $request->billing_zip,
-                        'billing_address' => $request->billing_address == null ? $request->shipping_address : $request->billing_address,
-                        'billing_city' => $request->billing_city == null ? $request->shipping_city : $request->billing_address,
-                        'billing_state' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
-                        'billing_zip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-                        'billing_country' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
-                    ),
-                    "metafields" => array(
-                        "Emailgift" => $request->Emailgift,
-                        "Firstnamegift" => $request->Firstnamegift,
-                        "Lastnamegift" => $request->Lastnamegift,
-                        "Phonegift" => $request->shipping_phonenumber,
-                        "Startdategift" => $dates == null ? '' : $dates,
-                        "additional_information" => $request->additional_information
-                    ),
-                    'coupon_code' => $request->promo_gift == null ? ' ' : $request->promo_gift,
-                    'currency' => $request->currency,
-                ),
-            );
-        } else {
-            $post_data =  array(
-                'subscription' => array(
-                    "snap_day" => $request->snap_day == null ? '' : $request->snap_day,
-                    'product_id' => $request->product_id,
-                    'product_price_point_id' => $request->product_price_point_id,
-                    "customer_id" => '',
-                    'customer_attributes' => array(
-                        'first_name' => $request->customer_first_name,
-                        'last_name' => $request->customer_last_name,
-                        'email' => $request->customer_email,
-                        'zip' => $request->shipping_zipcode,
-                        'state' => $request->shipping_state,
-                        'phone' => $request->customer_phone_number,
-                        'country' => $request->shipping_country,
-                        'city' => $request->shipping_city,
-                        'address_2' => NULL,
-                        'address' => $request->shipping_address,
-
-                    ),
-                    'credit_card_attributes' => array(
-                        'full_number' => $request->ccnumber,
-                        'expiration_month' => $month,
-                        'expiration_year' => $year,
-                        'cvv' => $request->cvv,
-                        'first_name' => $request->card_name,
-                        'billing_zip' => $request->billing_zip,
-                        'billing_address' => $request->billing_address == null ? $request->shipping_address : $request->billing_address,
-                        'billing_city' => $request->billing_city == null ? $request->shipping_city : $request->billing_address,
-                        'billing_state' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
-                        'billing_zip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-                        'billing_country' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
-                    ),
-                    "metafields" => array(
-                        "Emailgift" => $request->Emailgift,
-                        "Firstnamegift" => $request->Firstnamegift,
-                        "Lastnamegift" => $request->Lastnamegift,
-                        "Phonegift" => $request->shipping_phonenumber,
-                        "Startdategift" => $dates == null ? '' : $dates,
-                        "additional_information" => $request->additional_information
-                    ),
-                    'coupon_code' => $request->promo_gift == null ? ' ' : $request->promo_gift,
-                    'currency' => $request->currency,
-                ),
-            );
-        }
-
-        $data['customer_id']  = $request->customer_id;
-        $data['customer_first_name'] = $request->first_name;
-        $data['customer_last_name']  = $request->last_name;
-        $data['customer_email']  = $request->email;
-        $data['customer_phone_number'] = $request->phone_number;
-        $data['phone_number']   = $request->phone_number;
-        $data['product_handle'] = $request->product_handle;
-        $data['product_id']  = $request->product_id;
-        $data['product_price'] = $request->product_price;
-        $data['url'] =   $request->url;
-        $data['payment_name'] = $request->payment_name;
-        $data['product_name'] = $request->product_name;
-        $data['exist'] = $request->customer_exist;
-        $data['snap_day']  = $request->snap_day;
-        $data['product_price_point_id'] = $request->product_price_point_id;
-        $data['Startdategift'] = $request->Startdategift;
-        $data['Emailgift'] = $request->Emailgift;
-        $data['Firstnamegift'] = $request->Firstnamegift;
-        $data['Lastnamegift']  = $request->Lastnamegift;
-        $data['uk_product_id'] = $request->uk_product_id;
-        $data['uk_product_price'] = $request->uk_product_price;
-        $data['uk_price_point_id'] = $request->uk_product_price_point_id;
-        $data['gbp_product_id'] = $request->gbp_product_id;
-        $data['gbp_product_price'] = $request->gbp_product_price;
-        $data['gbp_price_point_id'] = $request->gbp_product_price_point_id;
-        $data['country'] = $country;
-        $data['frequently'] = $frequently;
-        $data['lead_id']  = $request->lead_id;
-
-        $json = json_encode($post_data);
-
-        if ($request->currency == "GBP") {
-            $post_url = "https://the-cultivist-uk-clone-clone.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic Z3gwb21rb1ZCclhhY3piWWswSENJYzhBaWNOa00yVXg1UkFvVXh0Nlk6MDAwVGhlQ3VsdGl2aXN0X1VwbGVycyM0Nw==",
-                "content-type: application/json"
-            );
-        } else if ($request->currency == "EUR") {
-            $post_url = "https://the-cultivist-uk-clone.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic TzV2bUNBam5QbmtBY3AzaXVBVHZmS3NkeEpGYTlIMXVTSzV2ZVgzOW9BOjAwMFRoZUN1bHRpdmlzdF9VcGxlcnMjNDc=",
-                "content-type: application/json"
-            );
-        } else {
-            $post_url = "https://the-cultivist-usa.chargify.com/subscriptions.json";
-            $header = array(
-                "authorization: Basic aUlpVmJoYXZMbFRzMk80eE5KTDFtMFJ4NU9aWEhmVTRkNVBNZmZiNWI4azo=",
-                "content-type: application/json"
-            );
-        }
-
-        /* token gererate code start -- */
-
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/oauth2/token',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'grant_type=password&client_id=3MVG9szVa2RxsqBaGQzSS2thf6iKy9gGluD2979jniKFXHrc6nc1vZ4OTw_PwoXVQNtWlUf3NE.2H0R08yQKO&client_secret=20983D576824023C7D59591642B9D98A2104787E157E0E3FA3B5167286835C88&username=marlies.verhoeven%40thecultivist.com&password=Dogdays2018J3vmtrm6pwcCIAlQttIXuFIS1',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded',
-                'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw; CookieConsentPolicy=0:0'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response, true);
-        $token = 'Authorization: Bearer ' . $response['access_token'];
-
-        /*--- lead create code---- */
 
         $gift_l_data = array(
             'firstname' => $request->customer_first_name,
@@ -1093,116 +791,45 @@ class TestController extends Controller
             'giftrecipientemail' => $request->Emailgift,
             'promoapplied' => $request->promo_gift,
             'additionalinformation' => $request->additional_information,
-            'chargifyuserid' => $request->customer_id,
-
+            'customerid' => $request->customer_id,
         );
 
         $g_lead_data = json_encode($gift_l_data);
-        /* lead create gift */
-        $curl = curl_init();
+        $giftLeadResponse = $this->generateSalesForceLead($token, $this->salesForceBaseUrl, $g_lead_data);
+        $gift_lead_response = $giftLeadResponse['lead_data'];
+        $http_status = $giftLeadResponse['http_status'];
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createlead',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $g_lead_data,
-            CURLOPT_HTTPHEADER => array(
-                $token,
-                'Content-Type: application/json',
-                'Cookie: BrowserId=tdG2nKgDEeu56Q1Yr4wGvQ'
-            ),
-        ));
-
-        $gift_lead_response = curl_exec($curl);
-
-        curl_close($curl);
-        $gift_lead_response;
-        $lead_datas = json_decode($gift_lead_response, true);
-        $gd_datas['leadId'] = $lead_datas['id'];
+        $gd_datas['leadId'] = $gift_lead_response['id'];
         $gd_datas['lead_response'] = $gift_lead_response;
-        customer::where('email', $request->customer_email)->orderBy('id', 'desc')->update($gd_datas);
-        /* lead create over */
 
+        $this->updateCustomerData($customerId, $gd_datas);
 
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $post_url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => $json,
-            CURLOPT_HTTPHEADER => $header,
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            echo "cURL Error #:" . $err;
+        if (isset($stripeResponseDecoded)) {
+            $gift_lead_response['obj']['stripeuserid'] = $stripeResponseDecoded['id'];
+            $gift_lead_response['obj']['subscriptionstartdate'] = date('Y-m-d', $stripeResponseDecoded['start_date']);
+            $gift_lead_response['obj']['membershipfee'] = $stripeResponseDecoded['plan']['amount'];
+            $gift_lead_response['obj']['paymentfrequency'] = '';
+            $gift_lead_response['obj']['accountcurrency'] = $request->currency;
+            $lead_responses = json_encode($gift_lead_response);
         } else {
-            $error = json_decode($response, true);
-
-            if (isset($error['errors'])) {
-                return view('checkout', compact('data', 'error'));
-            } else {
-                customer::where('email', $request->email)->orderBy('id', 'desc')->update(['chargify_response' => $response]);
-                $response = json_decode($response, true);
-                if (isset($response['subscription'])) {
-                    $lead_datas['obj']['chargifysubscriptionid'] = $response['subscription']['id'];
-                    $lead_datas['obj']['subscriptionstartdate'] = date('Y-m-d', strtotime($response['subscription']['activated_at']));
-                    $lead_datas['obj']['membershipfee'] = $response['subscription']['product_price_in_cents'];
-                    $lead_datas['obj']['paymentfrequency'] = '';
-                    $lead_datas['obj']['accountcurrency'] = $request->currency;
-                    $lead_responses = json_encode($lead_datas);
-                } else {
-
-                    $lead_datas['obj']['chargifysubscriptionid'] = '';
-                    $lead_datas['obj']['subscriptionstartdate'] = '';
-                    $lead_datas['obj']['membershipfee'] = '';
-                    $lead_datas['obj']['paymentfrequency'] = '';
-                    $lead_datas['obj']['accountcurrency'] = '';
-                    $lead_responses = json_encode($lead_datas);
-                }
-                /* gift member */
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => 'https://thecultivist.my.salesforce.com/services/apexrest/createmember',
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => $lead_responses,
-                    CURLOPT_HTTPHEADER => array(
-                        $token,
-                        'Content-Type: application/json',
-                        'Cookie: BrowserId=bPUO05dxEeusWeWw8fMlDw'
-                    ),
-                ));
-
-                $gift_member_response = curl_exec($curl);
-
-                curl_close($curl);
-                $gift_member_response;
-                /* END */
-                return redirect('/success');
-            }
+            $gift_lead_response['obj']['stripeuserid'] = '';
+            $gift_lead_response['obj']['subscriptionstartdate'] = '';
+            $gift_lead_response['obj']['membershipfee'] = '';
+            $gift_lead_response['obj']['paymentfrequency'] = '';
+            $gift_lead_response['obj']['accountcurrency'] = '';
+            $lead_responses = json_encode($gift_lead_response);
         }
+
+        $createMemberResponse = $this->createMember($token, $this->salesForceBaseUrl, $lead_responses);
+
+        $this->updateCustomerData($customerId, [
+            'create_member_response' => $createMemberResponse,
+            'membership_type' => 'dual',
+            'secondary_customer_data' => $lead_responses
+        ]);
+
+        /* END */
+        return redirect('/success');
     }
 
 
@@ -1442,5 +1069,54 @@ class TestController extends Controller
         echo json_encode($resp);
         exit;
         /* lead create over */
+    }
+
+    /**
+     * This will return the product details based on currency
+     *
+     * @param string $currency
+     * @param array $requestData
+     * @return array
+     */
+    public function getProductDetails($currency, $requestData)
+    {
+        if($currency === 'USD'){
+            return [
+                "product_id" => $requestData['product_id'],
+                "product_name" => $requestData['product_name'],
+                "product_price" => $requestData['product_price'],
+                "price_id" => $requestData['price_id'],
+            ];
+        }
+
+        if ($currency === 'EUR'){
+            return [
+                "product_id" => $requestData['uk_product_id'],
+                "product_name" => $requestData['uk_product_name'],
+                "product_price" => $requestData['uk_product_price'],
+                "price_id" => $requestData['uk_price_id'],
+            ];
+        }
+
+        if ($currency === 'GBP'){
+            return [
+                "product_id" => $requestData['gbp_product_id'],
+                "product_name" => $requestData['gbp_product_name'],
+                "product_price" => $requestData['gbp_product_price'],
+                "price_id" => $requestData['gbp_price_id'],
+            ];
+        }
+    }
+
+    /**
+     * This will return the country name
+     *
+     * @param int $shippingCountryId
+     * @return void
+     */
+    public function getCountryName($shippingCountryId)
+    {
+        $shippingCountry = Country::where('id', $shippingCountryId)->first();
+        return $shippingCountry->name ?? null;
     }
 }

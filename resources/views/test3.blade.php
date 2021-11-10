@@ -59,86 +59,105 @@
                                                 <input type="text" class="form-control" id="phonenumber" name="phone_number" value="{{old('phone_number')}}">
                                                 <span class="text-danger">{{ $errors->first('phone_number') }}</span>
                                             </div>
+                                            <div class="col-12 mb-2">
+                                                <label class="form-label" for="shipping_country">Country</label>
+                                                <select class="form-select ship_country call" id="country" name="shipping_country">
+                                                    <option selected disabled>Select Country</option>
+                                                    <optgroup label="Frequently Used">
+                                                        @foreach($data['frequently'] as $key=> $val)
+                                                        <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                    <optgroup label="All Country">
+                                                        @foreach($data['country'] as $key => $value)
+                                                        <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                        @endforeach
+                                                    </optgroup>
+
+                                                </select>
+                                            </div>
+                                            <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="" />
+                                            <input type="hidden" name="shipping_country_code" id="shipping_country_code" value="" />
+                                            <input type="hidden" name="product_id" id="checkout_product_id" value="">
                                         </div>
+                                        <div class="tabs-style-1 mt-4">
+                                            <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
+                                            <ul class="nav nav-pills pay" role="tablist">
+                                                <li class="nav-item payment" role="presentation">
+                                                    <a class="nav-link active year" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountUSD']}}" data-name="1 Year Prepaid" data-interval="" data-uk="{{$plans['yearlyProductAmountEUR']}}" data-gbp="{{$plans['yearlyProductAmount']}}">1 Year Prepaid</a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountEUR']}}" data-gbp="{{$plans['monthlyProductAmount']}}">Pay Monthly</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content" id="payment_tab">
+
+                                                <div class="tab-pane fade show active" id="yearPrepaid" role="tabpanel" aria-labelledby="yearPrepaid-tab">
+
+                                                    <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
+                                                        <div class="col-9">
+                                                            <div class="fw-bold">{{$plans['yearlyProductNameUSD']}}</div>
+                                                            <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
+                                                        </div>
+                                                        <div class="col-3 text-end price">${{$plans['yearlyProductAmountUSD']}}</div>
+                                                    </div>
+                                                    <div class="row gx-1 mt-3">
+                                                        <div class="col-9 fw-bold">Total</div>
+                                                        <div class="col-3 text-end fw-bold total total_price">${{$plans['yearlyProductAmountUSD']}}</div>
+                                                    </div>
+
+                                                    <input type="hidden" id="product_name" name="product_name" value="{{$plans['yearlyProductNameUSD']}}">
+                                                    <input type="hidden" id="product_id" name="product_id" value="{{$plans['yearlyProductIDUSD']}}">
+                                                    <input type="hidden" id="pro_price" name="product_price" value="{{$plans['yearlyProductAmountUSD']}}">
+                                                    <input type="hidden" name="product_handle" value="museum-1">
+                                                    <input type="hidden" id="price_id" name="price_id" value="{{$plans['yearlyPlanIDUSD']}}">
 
 
-                                </div>
-                                <div class="tabs-style-1 mt-4">
-                                    <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
-                                    <ul class="nav nav-pills pay" role="tablist">
-                                        <li class="nav-item payment" role="presentation">
-                                            <a class="nav-link active year" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountUSD']}}" data-name="1 Year Prepaid" data-interval="" data-uk="{{$plans['yearlyProductAmountEUR']}}" data-gbp="{{$plans['yearlyProductAmount']}}">1 Year Prepaid</a>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <a class="nav-link month" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountEUR']}}" data-gbp="{{$plans['monthlyProductAmount']}}">Pay Monthly</a>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content" id="payment_tab">
+                                                    <input type="hidden" id="uk_product_name" name="uk_product_name" value="{{$plans['yearlyProductNameEUR']}}">
+                                                    <input type="hidden" id="uk_product_id" name="uk_product_id" value="{{$plans['yearlyProductIDEUR']}}">
+                                                    <input type="hidden" id="uk_product_price" name="uk_product_price" value="{{$plans['yearlyProductAmountEUR']}}">
+                                                    <input type="hidden" id="uk_price_id" name="uk_price_id" value="{{$plans['yearlyPlanIDEUR']}}">
 
-                                        <div class="tab-pane fade show active" id="yearPrepaid" role="tabpanel" aria-labelledby="yearPrepaid-tab">
+                                                    <input type="hidden" id="gbp_product_name" name="gbp_product_name" value="{{$plans['yearlyProductName']}}">
+                                                    <input type="hidden" id="gbp_product_id" name="gbp_product_id" value="{{$plans['yearlyProductID']}}">
+                                                    <input type="hidden" id="gbp_product_price" name="gbp_product_price" value="{{$plans['yearlyProductAmount']}}">
+                                                    <input type="hidden" id="gbp_price_id" name="gbp_price_id" value="{{$plans['yearlyPlanID']}}">
+                                                    <input type="hidden" name="product_price" id="product_price" value="">
+                                                    <input type="hidden" id="currency" name="currency" value="">
 
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">{{$plans['yearlyProductNameUSD']}}</div>
-                                                    <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
+                                                    <input type="hidden" id="payment_name" name="payment_name" value="1 Year Prepaid">
+
                                                 </div>
-                                                <div class="col-3 text-end">${{$plans['yearlyProductAmountUSD']}}</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total">${{$plans['yearlyProductAmountUSD']}}</div>
-                                            </div>
-
-                                            <input type="hidden" id="product_name" name="product_name" value="{{$plans['yearlyProductNameUSD']}}">
-                                            <input type="hidden" id="product_id" name="product_id" value="{{$plans['yearlyProductIDUSD']}}">
-                                            <input type="hidden" id="pro_price" name="product_price" value="{{$plans['yearlyProductAmountUSD']}}">
-                                            <input type="hidden" name="product_handle" value="museum-1">
-                                            <input type="hidden" id="price_id" name="price_id" value="{{$plans['yearlyPlanIDUSD']}}">
-
-
-                                            <input type="hidden" id="uk_product_name" name="uk_product_name" value="{{$plans['yearlyProductNameEUR']}}">
-                                            <input type="hidden" id="uk_product_id" name="uk_product_id" value="{{$plans['yearlyProductIDEUR']}}">
-                                            <input type="hidden" id="uk_product_price" name="uk_product_price" value="{{$plans['yearlyProductAmountEUR']}}">
-                                            <input type="hidden" id="uk_price_id" name="uk_price_id" value="{{$plans['yearlyPlanIDEUR']}}">
-
-                                            <input type="hidden" id="gbp_product_name" name="gbp_product_name" value="{{$plans['yearlyProductName']}}">
-                                            <input type="hidden" id="gbp_product_id" name="gbp_product_id" value="{{$plans['yearlyProductID']}}">
-                                            <input type="hidden" id="gbp_product_price" name="gbp_product_price" value="{{$plans['yearlyProductAmount']}}">
-                                            <input type="hidden" id="gbp_price_id" name="gbp_price_id" value="{{$plans['yearlyPlanID']}}">
-
-
-                                            <input type="hidden" id="payment_name" name="payment_name" value="1 Year Prepaid">
-
-                                        </div>
-                                        <div class="tab-pane fade" id="paidMonthly" role="tabpanel" aria-labelledby="paidMonthly-tab">
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">{{$plans['monthlyProductNameUSD']}}</div>
-                                                    <div class="pt-3">Paid Monthly</div>
+                                                <div class="tab-pane fade" id="paidMonthly" role="tabpanel" aria-labelledby="paidMonthly-tab">
+                                                    <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
+                                                        <div class="col-9">
+                                                            <div class="fw-bold">{{$plans['monthlyProductNameUSD']}}</div>
+                                                            <div class="pt-3">Paid Monthly</div>
+                                                        </div>
+                                                        <div class="col-3 text-end price">${{$plans['monthlyProductAmountUSD']}}</div>
+                                                    </div>
+                                                    <div class="row gx-1 mt-3">
+                                                        <div class="col-9 fw-bold">Total</div>
+                                                        <div class="col-3 text-end fw-bold total total_price" id="total">${{$plans['monthlyProductAmountUSD']}}</div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-3 text-end">${{$plans['monthlyProductAmountUSD']}}</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total" id="total">${{$plans['monthlyProductAmountUSD']}}</div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row mt-4 pt-3 align-items-center">
-                                    <div class="col-12 col-sm-auto">
-                                        <div class="">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
+                                        <div class="row mt-4 pt-3 align-items-center">
+                                            <div class="col-12 col-sm-auto">
+                                                <div class="">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
+                                                </div>
+                                                <div class="mt-1">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
+                                                <button type="submit" class="btn btn-dark w-140">Continue</button>
+                                            </div>
                                         </div>
-                                        <div class="mt-1">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
-                                        <button type="submit" class="btn btn-dark w-140">Continue</button>
-                                    </div>
+                                    </form>
                                 </div>
-                                </form>
                             </div>
 
                             <div class="tab-pane fade {{session('activeTab') == 'dual' ? 'show active' : ''}}" id="dual" role="tabpanel" aria-labelledby="dual-tab">
@@ -177,6 +196,27 @@
                                                 <input type="text" class="form-control" id="phonenumber" name="phone_number" value="{{old('phone_number')}}">
                                                 <span class="text-danger">{{ $errors->first('phone_number') }}</span>
                                             </div>
+                                            <div class="col-12 mb-2">
+                                                <label class="form-label" for="shipping_country">Country</label>
+                                                <select class="form-select ship_country_d call" id="country" name="shipping_country">
+                                                    <option selected disabled>Select Country</option>
+                                                    <optgroup label="Frequently Used">
+                                                        @foreach($data['frequently'] as $key=> $val)
+                                                        <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                    <optgroup label="All Country">
+                                                        @foreach($data['country'] as $key => $value)
+                                                        <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                        @endforeach
+                                                    </optgroup>
+
+                                                </select>
+                                            </div>
+                                            <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="" />
+                                            <input type="hidden" name="shipping_country_code" id="shipping_country_code" value="" />
+                                            <input type="hidden" name="product_id" id="checkout_product_id" value="">
+
                                         </div>
                                         <div class="row gx-2 py-3">
                                             <div class="col-12 h6 fw-bold mb-3">Card Holder 2</div>
@@ -201,13 +241,13 @@
                                                 <span class="text-danger">{{ $errors->first('detail_02_phone_number') }}</span>
                                             </div>
                                         </div>
-
+                                        <input type="hidden" name="product_price" id="product_price" value="">
+                                        <input type="hidden" id="currency" name="currency" value="">
                                         <input type="hidden" id="product_name_d" name="product_name" value="{{$plans['yearlyProductNameDualUSD']}}">
                                         <input type="hidden" id="product_id_d" name="product_id" value="{{$plans['yearlyProductIDDualUSD']}}">
                                         <input type="hidden" id="pro_price_d" name="product_price" value="{{$plans['yearlyProductAmountDualUSD']}}">
                                         <input type="hidden" name="product_handle" value="museum-dual">
                                         <input type="hidden" id="price_id_d" name="price_id" value="{{$plans['yearlyPlanIDDualUSD']}}">
-
 
                                         <input type="hidden" id="uk_product_name_d" name="uk_product_name" value="{{$plans['yearlyProductNameDualEUR']}}">
                                         <input type="hidden" id="uk_product_id_d" name="uk_product_id" value="{{$plans['yearlyProductIDDualEUR']}}">
@@ -219,65 +259,65 @@
                                         <input type="hidden" id="gbp_product_price_d" name="gbp_product_price" value="{{$plans['yearlyProductAmountDualGBP']}}">
                                         <input type="hidden" id="gbp_price_id_d" name="gbp_price_id" value="{{$plans['yearlyPlanIDDualGBP']}}">
 
-                                </div>
-                                <div class="tabs-style-1 mt-4">
-                                    <input type="hidden" name="payment_name" id="payment_name_d" value="1 Year Prepaid">
-                                    <input type="hidden" name="snap_day" id="snap_day_d" value="28">
-                                    <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
-                                    <ul class="nav nav-pills pay" role="tablist">
-                                        <li class="nav-item payment" role="presentation">
-                                            <a class="nav-link active year_d" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid1" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountDualUSD']}}" data-name="1 Year Prepaid" data-uk="{{$plans['yearlyProductAmountDualEUR']}}" data-gbp="{{$plans['yearlyProductAmountDualGBP']}}">1 Year Prepaid</a>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <a class="nav-link month_d" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly1" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountDualUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountDualEUR']}}" data-gbp="{{$plans['monthlyProductAmountDualGBP']}}">Pay Monthly</a>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content" id="payment_tab">
+                                        <div class="tabs-style-1 mt-4">
+                                            <input type="hidden" name="payment_name" id="payment_name_d" value="1 Year Prepaid">
+                                            <input type="hidden" name="snap_day" id="snap_day_d" value="28">
+                                            <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
+                                            <ul class="nav nav-pills pay" role="tablist">
+                                                <li class="nav-item payment" role="presentation">
+                                                    <a class="nav-link active year_d" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid1" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountDualUSD']}}" data-name="1 Year Prepaid" data-uk="{{$plans['yearlyProductAmountDualEUR']}}" data-gbp="{{$plans['yearlyProductAmountDualGBP']}}">1 Year Prepaid</a>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <a class="nav-link month_d" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly1" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$plans['monthlyProductAmountDualUSD']}}" data-name="Pay Monthly" data-interval="28" data-uk="{{$plans['monthlyProductAmountDualEUR']}}" data-gbp="{{$plans['monthlyProductAmountDualGBP']}}">Pay Monthly</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content" id="payment_tab">
 
-                                        <div class="tab-pane fade show active" id="yearPrepaid1" role="tabpanel" aria-labelledby="yearPrepaid-tab">
+                                                <div class="tab-pane fade show active" id="yearPrepaid1" role="tabpanel" aria-labelledby="yearPrepaid-tab">
 
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">{{$plans['yearlyProductNameDualUSD']}}</div>
-                                                    <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
+                                                    <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
+                                                        <div class="col-9">
+                                                            <div class="fw-bold">{{$plans['yearlyProductNameDualUSD']}}</div>
+                                                            <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
+                                                        </div>
+                                                        <div class="col-3 text-end price_d">${{$plans['yearlyProductAmountDualUSD']}}</div>
+                                                    </div>
+                                                    <div class="row gx-1 mt-3">
+                                                        <div class="col-9 fw-bold">Total</div>
+                                                        <div class="col-3 text-end fw-bold total total_price_d">${{$plans['yearlyProductAmountDualUSD']}}</div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-3 text-end">${{$plans['yearlyProductAmountDualUSD']}}</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total">${{$plans['yearlyProductAmountDualUSD']}}</div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="paidMonthly1" role="tabpanel" aria-labelledby="paidMonthly-tab">
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">{{$plans['monthlyProductNameDualUSD']}}</div>
-                                                    <div class="pt-3">Paid Monthly</div>
+                                                <div class="tab-pane fade" id="paidMonthly1" role="tabpanel" aria-labelledby="paidMonthly-tab">
+                                                    <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
+                                                        <div class="col-9">
+                                                            <div class="fw-bold">{{$plans['monthlyProductNameDualUSD']}}</div>
+                                                            <div class="pt-3 price_d">Paid Monthly</div>
+                                                        </div>
+                                                        <div class="col-3 text-end price_d">${{$plans['monthlyProductAmountDualUSD']}}</div>
+                                                    </div>
+                                                    <div class="row gx-1 mt-3">
+                                                        <div class="col-9 fw-bold">Total</div>
+                                                        <div class="col-3 text-end fw-bold total total_price_d" id="total">${{$plans['monthlyProductAmountDualUSD']}}</div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-3 text-end">${{$plans['monthlyProductAmountDualUSD']}}</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold total" id="total">${{$plans['monthlyProductAmountDualUSD']}}</div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row mt-4 pt-3 align-items-center">
-                                    <div class="col-12 col-sm-auto">
-                                        <div class="">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
+                                        <div class="row mt-4 pt-3 align-items-center">
+                                            <div class="col-12 col-sm-auto">
+                                                <div class="">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
+                                                </div>
+                                                <div class="mt-1">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
+                                                <button type="submit" class="btn btn-dark w-140">Continue</button>
+                                            </div>
                                         </div>
-                                        <div class="mt-1">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
-                                        <button type="submit" class="btn btn-dark w-140">Continue</button>
-                                    </div>
-                                </div>
-                                </form>
+                                    </form>
 
+                                </div>
                             </div>
 
                             <div class="tab-pane fade {{session('activeTab') == 'gifting' ? 'show active' : ''}}" id="gifting" role="tabpanel" aria-labelledby="gifting-tab">
@@ -331,126 +371,105 @@
                                                     <input type="text" class="form-control" id="customer_phone_number" name="customer_phone_number" value="{{old('phone_number')}}">
                                                     <span class="text-danger">{{ $errors->first('phone_number')  }}</span>
                                                 </div>
-                                            </div>
-                                            <input type="hidden" name="product_id" value="5278164">
-                                            <input type="hidden" name="product_name" value="The Enthusiast - Gift">
-                                            <input type="hidden" name="product_handle" value="museum-gift">
-                                            <input type="hidden" name="interval" value="12">
-                                            <input type="hidden" name="uk_product_id" id="uk_product_g" value="5278166">
-                                            <input type="hidden" name="uk_product_price" id="uk_product_price_g" value="475">
-                                            <input type="hidden" name="uk_price_point_id" id="uk_price_point_id_g" value="996068">
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label" for="shipping_country">Country</label>
+                                                    <select class="form-select ship_country_g call" id="country" name="shipping_country">
+                                                        <option selected disabled>Select Country</option>
+                                                        <optgroup label="Frequently Used">
+                                                            @foreach($data['frequently'] as $key=> $val)
+                                                            <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                        <optgroup label="All Country">
+                                                            @foreach($data['country'] as $key => $value)
+                                                            <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                            @endforeach
+                                                        </optgroup>
 
-                                            <input type="hidden" name="gbp_product_id" id="gbp_product_id_g" value="5460713">
-                                            <input type="hidden" name="gbp_product_price" id="gbp_product_price_g" value="420">
-                                            <input type="hidden" name="gbp_price_point_id" id="gbp_price_point_id_g" value="1197866">
+                                                    </select>
+                                                </div>
+                                                <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="" />
+                                                <input type="hidden" name="shipping_country_code" id="shipping_country_code" value="" />
+                                            </div>
+                                            <input type="hidden" name="product_id" id="checkout_product_id" value="">
+                                            <input type="hidden" name="product_price" id="product_price" value="">
+                                            <input type="hidden" id="currency" name="currency" value="">
+                                            <input type="hidden" id="product_name_g" name="product_name" value="{{$plans['yearlyProductNameGiftUSD']}}">
+                                            <input type="hidden" id="product_id_g" name="product_id" value="{{$plans['yearlyProductIDGiftUSD']}}">
+                                            <input type="hidden" id="pro_price_g" name="product_price" value="{{$plans['yearlyProductAmountGiftUSD']}}">
+                                            <input type="hidden" name="product_handle" value="museum-dual">
+                                            <input type="hidden" id="price_id_g" name="price_id" value="{{$plans['yearlyPlanIDGiftUSD']}}">
+
+
+                                            <input type="hidden" id="uk_product_name_g" name="uk_product_name" value="{{$plans['yearlyProductNameGiftEUR']}}">
+                                            <input type="hidden" id="uk_product_id_g" name="uk_product_id" value="{{$plans['yearlyProductIDGiftEUR']}}">
+                                            <input type="hidden" id="uk_product_price_g" name="uk_product_price" value="{{$plans['yearlyProductAmountGiftEUR']}}">
+                                            <input type="hidden" id="uk_price_id_g" name="uk_price_id" value="{{$plans['yearlyPlanIDGiftEUR']}}">
+
+                                            <input type="hidden" id="gbp_product_name_g" name="gbp_product_name" value="{{$plans['yearlyProductNameGiftGBP']}}">
+                                            <input type="hidden" id="gbp_product_id_g" name="gbp_product_id" value="{{$plans['yearlyProductIDGiftGBP']}}">
+                                            <input type="hidden" id="gbp_product_price_g" name="gbp_product_price" value="{{$plans['yearlyProductAmountGiftGBP']}}">
+                                            <input type="hidden" id="gbp_price_id_g" name="gbp_price_id" value="{{$plans['yearlyPlanIDGiftGBP']}}">
 
                                         </div>
                                         <div class="pt-4 pb-3">
-                                            <div class="col-12 h6 fw-bold mb-1">Would you like the recipient to know?</div>
-                                            <div class="mb-3">
-                                                <!--We understand it’s really hard to keep the gift as a surprice! Let us help you with that.-->
+                                            <div class="col-12 h6 fw-bold mb-1">
+                                                Please note, the recipient will be notified of their gift as soon as checkout is complete.
                                             </div>
-
-                                            <div class="form-check" data-bs-toggle="modal" data-bs-target="#radioYesModal">
-                                                <input class="form-check-input" type="radio" name="no" id="yes" value="yes" checked>
-                                                <label class="form-check-label" for="yes">
-                                                    Immediately
-                                                </label>
-                                            </div>
-
-                                            <div class="form-check" data-bs-toggle="modal" data-bs-target="#radioNoModal">
-                                                <input class="form-check-input" type="radio" name="no" value="no" id="no">
-                                                <label class="form-check-label" for="no">
-                                                    Pick a Date
-                                                </label>
-                                                <input type="hidden" name="Startdategift" id="start_date" value="">
-                                            </div>
-
-
-                                        </div>
-                                </div>
-                                <div class="tabs-style-1 mt-4">
-                                    <?php
-                                    //	$price_year = ($value['price_in_cents']/100);
-                                    $price_month = (40);
-                                    ?>
-                                    <input type="hidden" name="product_price" id="pro_price_g" value="440">
-                                    <input type="hidden" name="payment_name" id="payment_name_g" value="1 Year Prepaid">
-                                    <input type="hidden" name="product_price_point_id" id="price_point_id_g" value="996066">
-                                    <input type="hidden" name="snap_day" id="snap_day_g" value="28">
-                                    <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
-                                    <ul class="nav nav-pills" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <a class="nav-link active year_g" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid2" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="440" data-name="1 Year Prepaid" data-uk="475">1 Year Prepaid</a>
-                                        </li>
-                                        <!--	<li class="nav-item" role="presentation">
-			                    	<a class="nav-link month_g" id="paidMonthly-tab" data-bs-toggle="tab" href="#paidMonthly2" role="tab" aria-controls="paidMonthly" aria-selected="false" data-value="{{$price_month}}" data-name="Pay Monthly" data-interval="28">Pay Monthly</a>
-			                  	</li>-->
-                                    </ul>
-                                    <div class="tab-content">
-
-                                        <div class="tab-pane fade show active" id="yearPrepaid2" role="tabpanel" aria-labelledby="yearPrepaid-tab">
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast - Gifting a Membership</div>
-                                                    <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
-                                                </div>
-                                                <div class="col-3 text-end">$440</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold">$440</div>
+                                            <br>
+                                            <div class="col-12 h6 fw-bold mb-1">
+                                                Should you want a later start date, please email <a href="mailto: contact@thecultivist.com">contact@thecultivist.com</a> our team.
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="paidMonthly2" role="tabpanel" aria-labelledby="paidMonthly-tab">
-                                            <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
-                                                <div class="col-9">
-                                                    <div class="fw-bold">The Enthusiast - Gifting a Membership</div>
-                                                    <div class="pt-3">Paid Monthly</div>
-                                                </div>
-                                                <div class="col-3 text-end">${{$price_month}}</div>
-                                            </div>
-                                            <div class="row gx-1 mt-3">
-                                                <div class="col-9 fw-bold">Total</div>
-                                                <div class="col-3 text-end fw-bold">${{$price_month}}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                        <div class="tabs-style-1 mt-4">
+                                            <?php
+                                            //	$price_year = ($value['price_in_cents']/100);
+                                            $price_month = (40);
+                                            ?>
+                                            <input type="hidden" name="product_price" id="pro_price_g" value="440">
+                                            <input type="hidden" name="payment_name" id="payment_name_g" value="1 Year Prepaid">
+                                            <input type="hidden" name="product_price_point_id" id="price_point_id_g" value="996066">
+                                            <input type="hidden" name="snap_day" id="snap_day_g" value="28">
+                                            <h6 class="fw-bold mb-3">Select Your Payment Preference</h6>
+                                            <ul class="nav nav-pills" role="tablist">
+                                                <li class="nav-item" role="presentation">
+                                                    <a class="nav-link active year_g" id="yearPrepaid-tab" data-bs-toggle="tab" href="#yearPrepaid2" role="tab" aria-controls="yearPrepaid" aria-selected="true" data-value="{{$plans['yearlyProductAmountGiftUSD']}}" data-name="1 Year Prepaid" data-uk="{{$plans['yearlyProductAmountGiftEUR']}}" data-gbp="{{$plans['yearlyProductAmountGiftGBP']}}">1 Year Prepaid</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content">
 
-                                <div class="row mt-4 pt-3 align-items-center">
-                                    <div class="col-12 col-sm-auto">
-                                        <div class="">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
-                                        </div>
-                                        <div class="mt-1">
-                                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
-                                        <button type="submit" id="gift_submit" class="btn btn-dark w-140">Continue</button>
-                                    </div>
-                                </div>
-                                <div class="modal fade" id="radioNoModal" tabindex="-1" aria-labelledby="radioNoModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-body">
-                                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                <div class="p-2 px-sm-4 pt-sm-4 pb-sm-2 mt-4 text-center">
-                                                    <div class="mb-4 modal-text">Select the date you'd like their membership to begin. <br>This will also be the date they will receive their welcome email.</div>
-                                                    <div class="mb-4 mx-auto datepicker-240" id="datepicker"></div>
-                                                </div>
-                                                <div class="pb-2 pb-sm-4 text-center">
-                                                    <button type="button" class="btn btn-link text-dark" data-bs-dismiss="modal">SUBMIT</button>
+                                                <div class="tab-pane fade show active" id="yearPrepaid2" role="tabpanel" aria-labelledby="yearPrepaid-tab">
+                                                    <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
+                                                        <div class="col-9">
+                                                            <div class="fw-bold">{{$plans['yearlyProductNameGiftUSD']}}</div>
+                                                            <div class="pt-3">1 Year Prepaid (Receive Metal Membership Card)</div>
+                                                        </div>
+                                                        <div class="col-3 text-end price_g">${{$plans['yearlyProductAmountGiftUSD']}}</div>
+                                                    </div>
+                                                    <div class="row gx-1 mt-3">
+                                                        <div class="col-9 fw-bold">Total</div>
+                                                        <div class="col-3 text-end fw-bold total_price_g">${{$plans['yearlyProductAmountGiftUSD']}}</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+
+                                        <div class="row mt-4 pt-3 align-items-center">
+                                            <div class="col-12 col-sm-auto">
+                                                <div class="">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#renewsEveryYearModal">Automatically renews every year</a>
+                                                </div>
+                                                <div class="mt-1">
+                                                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#cancelAutoRenewalModal">How to cancel auto renewal</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm order-sm-first mt-4 pt-3 mt-sm-0 pt-sm-0">
+                                                <button type="submit" id="gift_submit" class="btn btn-dark w-140">Continue</button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
-                                </form>
                             </div>
-
-
                         </div>
                     </div>
 
