@@ -26,7 +26,6 @@ Route::post('coupen_check','TestController@check_coupen');
 Route::post('gifting','TestController@gifting');
 Route::post('gift_checkout','TestController@gift_checkout');
 Route::get('success','TestController@success');
-Route::post('form-submit','TestController@formsubmit');
 
 // webhook routes
 Route::post('stripe/webhook', 'StripeWebhookController@handleWebhook');
