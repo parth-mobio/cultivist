@@ -1,5 +1,6 @@
 <?php
 
+use App\Country;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -258,7 +259,7 @@ function getThePlans($key)
 /**
  * This will return the env i.e. local or production
  *
- * @return void
+ * @return string
  * @author nehalk
  */
 function getAppEnvironment()
@@ -266,37 +267,92 @@ function getAppEnvironment()
     return Config::get('constants.app_env');
 }
 
+/**
+ * This will return the sales force user name
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceUsername($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_username');
 }
 
+/**
+ * This will return the sales force user password
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForcePassword($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_password');
 }
 
+/**
+ * This will return the sales force user token
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceToken($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_token');
 }
 
+/**
+ * This will return the sales force base url for api
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceBaseUrl($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_base_URL');
 }
 
+/**
+ * This will return the sales force client id
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceClientId($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_client_id');
 }
 
+/**
+ * This will return the sales force client secret
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceClientSecret($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_client_secret');
 }
 
+/**
+ * This will return the sales force token url
+ *
+ * @return string
+ * @author nehalk
+ */
 function getSalesForceTokenUrl($stripeEnv)
 {
     return Config::get('constants.'.$stripeEnv.'.salesforce_token_url');
+}
+
+/**
+ * This will update the country count for frequently used
+ *
+ * @param integer $countryId
+ * @return void
+ */
+function updateCountryCounts($countryId)
+{
+    $countryCount = Country::where('id', $countryId)->first();
+    $countryCount->counts = $countryCount->counts + 1;
+    $countryCount->save();
 }

@@ -18,6 +18,9 @@
         justify-content: center;
         background: rgba(255, 255, 255, .7);
     }
+    .error {
+        color: red;
+    }
 </style>
 <style>
     .StripeElement {
