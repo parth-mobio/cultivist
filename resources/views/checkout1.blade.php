@@ -44,38 +44,12 @@
                                     <input type="text" class="form-control call" id="shipping_state" name="shipping_state">
                                 </div>
 
-                                <div class="col-12 mb-2">
-                                    <label class="form-label" for="country">Country</label>
-                                    <select class="form-select ship_country call" id="country" name="shipping_country">
-                                        <option selected disabled>Select Country</option>
-                                        <optgroup label="Frequently Used">
-                                            @foreach($data['frequently'] as $key=> $val)
-                                            <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
-                                            @endforeach
-                                        </optgroup>
-                                        <optgroup label="All Country">
-                                            @foreach($data['country'] as $key => $value)
-                                            <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
-                                            @endforeach
-                                        </optgroup>
-
-                                    </select>
-                                </div>
-                                <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="" />
-                                @if($data['product_name']== "The Enthusiast - Gift")
+                                @if(isset($data['Emailgift']) && $data['Emailgift'] != null)
 
                                 <input type="hidden" name="shipping_phonenumber" value="{{$data['customer_phone_number']}}">
                                 @endif
 
-                                <input type="hidden" name="uk_product_id" id="uk_product_id" value="{{$data['uk_product_id']}}">
-                                <input type="hidden" name="uk_product_price" id="uk_product_price" value="{{$data['uk_product_price']}}">
-                                <input type="hidden" id="uk_currency" name="currency" value="">
-
-                                <input type="hidden" name="gbp_product_id" id="gbp_product_id" value="{{$data['gbp_product_id']}}">
-                                <input type="hidden" name="gbp_product_price" id="gbp_product_price" value="{{$data['gbp_product_price']}}">
-                                <input type="hidden" id="gbp_currency" name="currency" value="">
-
-                                <input type="hidden" id="currency" name="currency" value="">
+                                <input type="hidden" id="currency" name="currency" value="{{$data['currency']}}">
                                 <input type="hidden" id="lead_id" name="lead_id" value="{{$data['lead_id']}}">
                                 <input type="hidden" name="customer_id" value="{{$data['customer_id']}}">
                                 <input type="hidden" name="product_handle" value="{{$data['product_handle']}}">
@@ -92,7 +66,7 @@
                                 <input type="hidden" name="product_name" id="product_name" value="{{$data['product_name']}}">
                                 <input type="hidden" name="price_id" id="price_id" value="{{$data['price_id']}}">
                                 <input type="hidden" name="default_product_price" id="default_product_price" value="{{$data['product_price']}}">
-
+                                <input type="hidden" name="shipping_country_id" id="shipping_country_id" value="{{$data['shipping_country_id']}}">
                                 @if(isset($data['email_dual_member']) && $data['email_dual_member'] != null)
                                 <input type="hidden" name="email_dual_member" value="{{$data['email_dual_member']}}">
                                 <input type="hidden" name="first_name_dual_member" value="{{$data['first_name_dual_member']}}">
@@ -101,7 +75,7 @@
 
                                 @endif
 
-                                @if($data['product_name']== "The Enthusiast - Gift")
+                                @if(isset($data['Emailgift']) && $data['Emailgift'] != null)
                                 <input type="hidden" name="Emailgift" value="{{$data['Emailgift']}}">
                                 <input type="hidden" name="Firstnamegift" value="{{$data['Firstnamegift']}}">
                                 <input type="hidden" name="Lastnamegift" value="{{$data['Lastnamegift']}}">
@@ -109,8 +83,6 @@
                                 <input type="hidden" name="customer_first_name" value="{{$data['customer_first_name']}}">
                                 <input type="hidden" name="customer_last_name" value="{{$data['customer_last_name']}}">
                                 <input type="hidden" name="customer_phone_number" value="{{$data['customer_phone_number']}}">
-
-
                                 @endif
 
                                 @if(isset($data['Startdategift']) && $data['Startdategift'] != null)
@@ -230,7 +202,7 @@
                                             <div class="pt-3" id="payment-name">{{$data['payment_name']}}</div>
 
                                         </div>
-                                        <div class="col-3 text-end price">${{$data['product_price']}}</div>
+                                        <div class="col-3 text-end price">{{$data['final_price']}}</div>
                                     </div>
                                     <div class="row gx-1 pt-3">
                                         <div class="col-9">
@@ -241,7 +213,7 @@
                                 </div>
                                 <div class="row gx-1 mt-3">
                                     <div class="col-9 fw-bold">Total</div>
-                                    <div class="col-3 text-end fw-bold total_price">${{$data['product_price']}}</div>
+                                    <div class="col-3 text-end fw-bold total_price">{{$data['final_price']}}</div>
                                 </div>
                             </div>
                             <div class="row gx-2 py-4">
@@ -263,6 +235,7 @@
                                 <button type="submit" id="placed" class="btn btn-dark w-210 card-button" data-secret="{{ $data['intent']->client_secret }}">Place Secure Order</button>
                             </div>
                             <input type="hidden" id="has-credit-card" value="true" />
+                            <input type="hidden" id="stripe_key" value="{{$data['stripe_key']}}" />
                         </form>
                     </div>
                 </div>
@@ -275,77 +248,14 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
-    var stripeKey = "{{Config::get('services.stripe.key')}}";
+    var stripeKey = $('#stripe_key').val();
     const stripe = Stripe(stripeKey);
-
-    function stripeKeySet(param) {
-        const stripe = Stripe(param);
-    }
-    var country = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'MC', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'ES', 'SE', 'CH'];
-
-    var shipping_country = $('.ship_country option:selected').attr('code');
-    $('.ship_country option:selected').val(shipping_country);
-
-    var shipping_country_id = $('.ship_country option:selected').attr('country_id');
-    $('#shipping_country_id').val(shipping_country_id);
 
     var billing_country_id = $('.billing_country option:selected').attr('country_id');
     $('#billing_country_id').val(billing_country_id);
 
     var billing_country = $('.billing_country option:selected').attr('code');
     $('.billing_country option:selected').val(billing_country);
-
-    $('.ship_country').change(function() {
-        var shipping_country = $('.ship_country option:selected').attr('code');
-        $('.ship_country option:selected').val(shipping_country);
-
-        var shipping_country_id = $('.ship_country option:selected').attr('country_id');
-        $('#shipping_country_id').val(shipping_country_id);
-        if (shipping_country === 'GB') {
-            var product_id = $('#gbp_product_id').val();
-            var product_price = $('#gbp_product_price').val();
-            $('#checkout_product_id').val(product_id);
-            $('#product_price').val(product_price);
-            $('.price').text('£' + product_price);
-            $('.total_price').text('£' + product_price);
-            $('#currency').val('GBP');
-            var gbpStripeKey = "{{Config::get('services.stripe.EUR_GBP_key')}}";
-            stripeKeySet(gbpStripeKey);
-            var data = <?php echo json_encode($data) ?>;
-            $('#product-name').text(data.gbp_product_name);
-            $('#product_name').val(data.gbp_product_name);
-            $('#price_id').val(data.gbp_price_id);
-
-        } else if (jQuery.inArray(shipping_country, country) !== -1) {
-            var product_id = $('#uk_product_id').val();
-            var product_price = $('#uk_product_price').val();
-            $('#checkout_product_id').val(product_id);
-            $('#product_price').val(product_price);
-            $('.price').text('€' + product_price);
-            $('.total_price').text('€' + product_price);
-            $('#currency').val('EUR');
-            var eurStripeKey = "{{Config::get('services.stripe.EUR_GBP_key')}}";
-            stripeKeySet(eurStripeKey);
-            var data = <?php echo json_encode($data) ?>;
-            $('#product-name').text(data.uk_product_name);
-            $('#price_id').val(data.uk_price_id);
-        } else {
-            var def_product_id = $('#default_product_id').val();
-            var def_product_price = $('#default_product_price').val();
-            $('#checkout_product_id').val(def_product_id);
-            $('#product_price').val(def_product_price);
-            $('.price').text('$' + def_product_price);
-            $('.total_price').text('$' + def_product_price);
-            $('#currency').val('USD');
-            var usdStripeKey = "{{Config::get('services.stripe.key')}}";
-            stripeKeySet(usdStripeKey);
-            var data = <?php echo json_encode($data) ?>;
-            $('#product-name').text(data.product_name);
-            $('#product_name').val(data.product_name);
-            $('#price_id').val(data.price_id);
-        }
-
-    });
 
     $(document).ready(function() {
 
@@ -408,7 +318,6 @@
 
             $('.card-button').on('click', async (e) => {
                 e.preventDefault();
-                console.log("attempting");
                 const {
                     setupIntent,
                     error

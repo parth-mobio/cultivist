@@ -52,7 +52,7 @@ trait StripeSubscriptionTrait
         return [
             'address' => [
                 'city' => $request->billing_city == null ? $request->shipping_city : $request->billing_city,
-                'country' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
+                'country' => $request->billing_country_name == null ? $request->shipping_country_name : $request->billing_country_name,
                 'line1' => $request->billing_address == null ? $request->shipping_address : $request->billing_address,
                 'postal_code' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
                 'state' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
@@ -62,7 +62,7 @@ trait StripeSubscriptionTrait
             'shipping' => [
                 'address' => [
                     'city' => $request->shipping_city,
-                    'country' => $request->shipping_country,
+                    'country' => $request->shipping_country_name,
                     'line1' => $request->shipping_address,
                     'postal_code' => $request->shipping_zipcode,
                     'state' => $request->shipping_state

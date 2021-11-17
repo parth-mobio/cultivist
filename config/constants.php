@@ -63,4 +63,11 @@ return [
         'renewal_success' => 'Successful',
         'renewal_failure' => 'Unsuccessful'
     ],
+    'eur_countries' => ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'MC', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'ES', 'SE', 'CH'],
+    'gbp_countries' => ['GB'],
+    'currency_symbols' => [
+        'USD' => '$',
+        'GBP' => '£',
+        'EUR' => '€',
+    ]
 ];
