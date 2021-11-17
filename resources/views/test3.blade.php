@@ -14,17 +14,17 @@
                     <div class="tabs-wrap tabs-style-1 pt-3">
                         <ul class="nav nav-pills mb-3" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link active product1" id="individual-tab" data-bs-toggle="tab" href="#individual" role="tab" aria-controls="individual" aria-selected="true" data-id="5246819">Individual</a>
+                                <a class="nav-link {{session('activeTab') != 'dual' && session('activeTab') != 'gifting' ? 'active' : ''}} product1" id="individual-tab" data-bs-toggle="tab" href="#individual" role="tab" aria-controls="individual" aria-selected="true" data-id="5246819">Individual</a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link  product2{{session('activeTab') == 'dual' ? 'active' : ''}}" id="dual-tab" data-bs-toggle="tab" href="#dual" role="tab" aria-controls="dual" aria-selected="false" data-id="5453217">Dual <span class="d-none d-sm-inline">Membership</span></a>
+                                <a class="nav-link  product2 {{session('activeTab') == 'dual' ? 'active' : ''}}" id="dual-tab" data-bs-toggle="tab" href="#dual" role="tab" aria-controls="dual" aria-selected="false" data-id="5453217">Dual <span class="d-none d-sm-inline">Membership</span></a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link product3{{session('activeTab') == 'gifting' ? 'active' : ''}}" id="gifting-tab" data-bs-toggle="tab" href="#gifting" role="tab" aria-controls="gifting" aria-selected="false" data-id="5278164">Gift a Membership</a>
+                                <a class="nav-link product3 {{session('activeTab') == 'gifting' ? 'active' : ''}}" id="gifting-tab" data-bs-toggle="tab" href="#gifting" role="tab" aria-controls="gifting" aria-selected="false" data-id="5278164">Gift a Membership</a>
                             </li>
                         </ul>
                         <div class="tab-content" id="tabs">
-                            <div class="tab-pane fade {{session('activeTab') == '' ? 'show active' : ''}}" id="individual" role="tabpanel" aria-labelledby="individual-tab">
+                            <div class="tab-pane fade {{session('activeTab') != 'dual' && session('activeTab') != 'gifting' ? 'show active' : ''}}" id="individual" role="tabpanel" aria-labelledby="individual-tab">
                                 <div class="form-wrap">
                                     <div class="mb-5">Great choice! Tell us a bit more about yourself.</div>
                                     <form method="post" action="{{URL::asset('individual-post')}}" id="contact_form">
@@ -168,10 +168,10 @@
                                         @csrf
 
                                         @if ($message = Session::get('dual-error'))
-                                        <div class="alert alert-danger alert-block alert-message">
-                                            <strong>{!! $message !!}</strong>
-                                            <button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert">×</button>
-                                        </div>
+                                            <div class="alert alert-danger alert-block alert-message">
+                                                <strong>{!! $message !!}</strong>
+                                                <button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert">×</button>
+                                            </div>
                                         @endif
 
                                         <div class="row gx-2 pb-3">
@@ -291,7 +291,7 @@
                                                     <div class="row gx-1 mt-4 pt-3 border-bottom border-dark pb-4">
                                                         <div class="col-9">
                                                             <div class="fw-bold">{{$plans['monthlyProductNameDualUSD']}}</div>
-                                                            <div class="pt-3 price_d">Paid Monthly</div>
+                                                            <div class="pt-3">Paid Monthly</div>
                                                         </div>
                                                         <div class="col-3 text-end price_d">${{$plans['monthlyProductAmountDualUSD']}}</div>
                                                     </div>
@@ -325,6 +325,13 @@
                                     <div class="mb-5">Tell us who will be receiving the gift.</div>
                                     <form method="post" action="{{url('gifting')}}" id="gift_form">
                                         @csrf
+
+                                        @if ($message = Session::get('gift-error'))
+                                            <div class="alert alert-danger alert-block alert-message">
+                                                <strong>{!! $message !!}</strong>
+                                                <button type="button" class="close close-alert-message fa fa-window-close" data-dismiss="alert">×</button>
+                                            </div>
+                                        @endif
 
                                         <div class="row gx-2 pb-3">
                                             <div class="col-12 h6 fw-bold mb-3">Recipient's Details</div>

@@ -61,17 +61,28 @@ class TestController extends Controller
     {
         $productDetails = $this->getProductDetails($request->currency, $request->all());
 
-        $rule =
-            [
-                'email' => 'required|email',
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'phone_number' => 'required',
-                'shipping_country_code' => 'required'
-            ];
-        $validator = Validator::make($request->all(), $rule);
+        $rule = [
+            'email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone_number' => 'required',
+            'shipping_country_id' => 'required'
+        ];
+
+        $customMessages = [
+            'email.required' => 'The email field is required.',
+            'email.email'   => 'The email must be a valid email address.',
+            'first_name.required' => 'The first name field is required.',
+            'last_name.required'  => 'The last name field is required.',
+            'phone_number.required' => 'The phone number field is required.',
+            'shipping_country_id.required' => 'Please select the shipping country.',
+            'email.regex' => 'This email id is invalid.',
+        ];
+
+        $validator = Validator::make($request->all(), $rule, $customMessages);
         if ($validator->fails()) {
-            return redirect(url()->previous())->withErrors($validator);
+            Session()->flash('activeTab', 'individual');
+            return redirect(url()->previous() . '#individual')->withErrors($validator);
         }
 
         $customer = new customer();
@@ -105,6 +116,8 @@ class TestController extends Controller
             $customer->save();
             $customerId = $customer->id;
         }
+
+        updateCountryCounts($request->shipping_country_id); // update the country counts
 
         $country = Country::orderBy('name', 'ASC')->get();
         $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
@@ -171,7 +184,9 @@ class TestController extends Controller
         $eurGbpCountries = array_merge(Config::get('constants.eur_countries'),Config::get('constants.gbp_countries'));
         $data['stripe_key'] = in_array($request->shipping_country_code, $eurGbpCountries) ? Config::get('services.stripe.EUR_GBP_key') : Config::get('services.stripe.key');
         if ($http_status == Config::get('constants.status_error_code')) {
-            return redirect('/')->with('error', $l_id['message']);
+            Session()->flash('activeTab', 'individual');
+            return redirect(url()->previous() . '#individual')->with('error', $l_id['message']);
+            // return redirect('/')->withInput(['tabOpen' => 'individual'])->with('error', $l_id['message']);
         }
         return view('checkout1', compact('data'));
     }
@@ -211,7 +226,10 @@ class TestController extends Controller
 
         $this->updateCustomerData($customerId, $datas);
 
-        Country::where('code', $request->shipping_country)->increment('counts', 1);
+        if(isset($request->billing_country_id) && !empty($request->billing_country_id)) {
+            updateCountryCounts($request->billing_country_id); // update the country counts
+        }
+
 
         $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
@@ -286,11 +304,11 @@ class TestController extends Controller
     public function dual(Request $request)
     {
         $validatedData = [
-            'email' => 'required|email',
+            'email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
             'first_name' => 'required',
             'last_name' => 'required',
             'phone_number' => 'required',
-            'detail_02_email' => 'required|email',
+            'detail_02_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
             'detail_02_first_name' => 'required',
             'detail_02_last_name' => 'required',
             'detail_02_phone_number' => 'required',
@@ -307,7 +325,9 @@ class TestController extends Controller
             'detail_02_first_name.required'  => 'The first name is required',
             'detail_02_last_name.required'  => 'The last name is required.',
             'detail_02_phone_number.required' => 'The phone number is required.',
-            'shipping_country_id.required' => 'Please select the shipping country.'
+            'shipping_country_id.required' => 'Please select the shipping country.',
+            'email.regex' => 'This email id is invalid.',
+            'detail_02_email.regex' => 'This email id is invalid.',
         ];
 
         $validator = Validator::make($request->all(), $validatedData, $customMessages);
@@ -315,9 +335,6 @@ class TestController extends Controller
             Session()->flash('activeTab', 'dual');
             return redirect(url()->previous() . '#dual')->withErrors($validator);
         }
-
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
         $cardHolderTwoData = [
             "detail_02_email" => $request['detail_02_email'],
@@ -363,6 +380,11 @@ class TestController extends Controller
             $customer->save();
             $customerId = $customer->id;
         }
+
+        updateCountryCounts($request->shipping_country_id); // update the country counts
+
+        $country = Country::orderBy('name', 'ASC')->get();
+        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
         $data['customer_id']  = "";
         $data['customer_first_name'] = $request->first_name;
@@ -428,7 +450,9 @@ class TestController extends Controller
         $data['intent'] = $customer->createSetupIntent();
 
         if ($http_status == Config::get('constants.status_error_code')) {
-            return redirect('/')->with('dual-error', $d_response['message']);
+            Session()->flash('activeTab', 'dual');
+            return redirect(url()->previous() . '#dual')->with('dual-error', $d_response['message']);
+            // return redirect('/')->with('dual-error', $d_response['message']);
         }
 
         return view('checkout1', compact('data'));
@@ -468,8 +492,6 @@ class TestController extends Controller
         $stripeResponseEncoded = json_encode($stripeResponse);
         $stripeResponseDecoded = json_decode($stripeResponseEncoded, true);
 
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
         $datas['product_name'] = $request->product_name;
@@ -478,7 +500,10 @@ class TestController extends Controller
 
         $this->updateCustomerData($customerId, $datas);
 
-        Country::where('code', $request->shipping_country)->increment('counts', 1);
+        if(isset($request->billing_country_id) && !empty($request->billing_country_id)) {
+            updateCountryCounts($request->billing_country_id); // update the country counts
+        }
+
 
         $token = $this->getSalesForceAuthToken($this->salesForceTokenUrl, $this->salesForceClientId, $this->salesForceClientSecret, $this->salesForceUsername, $this->salesForcePassword, $this->salesForceToken);
 
@@ -565,7 +590,7 @@ class TestController extends Controller
     public function gifting(Request $request)
     {
         $validatedData = [
-            'Emailgift' => 'required|email',
+            'Emailgift' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
             'Firstnamegift' => 'required',
             'Lastnamegift' => 'required',
             'phone_number' => 'required',
@@ -587,7 +612,8 @@ class TestController extends Controller
             'customer_first_name.required'  => 'The first name is required',
             'customer_last_name.required'  => 'The last name is required.',
             'customer_phone_number.required' => 'The phone number is required.',
-            'shipping_country_id.required' => 'Please select the shipping country.'
+            'shipping_country_id.required' => 'Please select the shipping country.',
+            'Emailgift.regex' => 'The email id is invalid.'
         ];
 
         $validator = Validator::make($request->all(), $validatedData, $customMessages);
@@ -596,9 +622,6 @@ class TestController extends Controller
             Session()->flash('activeTab', 'gifting');
             return redirect(url()->previous() . '#gifting')->withErrors($validator);
         }
-
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
         $giftRecipientData = [
             "gift_recipient_name" => $request['Emailgift'],
@@ -644,6 +667,11 @@ class TestController extends Controller
             $customer->save();
             $customerId = $customer->id;
         }
+
+        updateCountryCounts($request->shipping_country_id); // update the country counts
+
+        $country = Country::orderBy('name', 'ASC')->get();
+        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
 
         $data['customer_id']  = "";
         $data['customer_first_name'] = $request->customer_first_name;
@@ -701,7 +729,9 @@ class TestController extends Controller
         $gift_lead_response = $giftLeadResponse['lead_data'];
         $http_status = $giftLeadResponse['http_status'];
         if ($http_status == Config::get('constants.status_error_code')) {
-            return redirect('/')->with('dual-error', $gift_lead_response['message']);
+            Session()->flash('activeTab', 'gifting');
+            return redirect(url()->previous() . '#gifting')->with('gift-error', $gift_lead_response['message']);
+            // return redirect('/')->with('dual-error', $gift_lead_response['message']);
         }
 
         if (isset($gift_lead_response['id'])) {
@@ -752,8 +782,9 @@ class TestController extends Controller
         $stripeResponseEncoded = json_encode($stripeResponse);
         $stripeResponseDecoded = json_decode($stripeResponseEncoded, true);
 
-        $country = Country::orderBy('name', 'ASC')->get();
-        $frequently = Country::orderBy('counts', 'DESC')->limit(4)->get();
+        if(isset($request->billing_country_id) && !empty($request->billing_country_id)) {
+            updateCountryCounts($request->billing_country_id); // update the country counts
+        }
 
         $datas['product_id'] = $request->product_id;
         $datas['product_price'] = $request->product_price;
