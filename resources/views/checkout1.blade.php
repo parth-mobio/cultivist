@@ -43,7 +43,18 @@
                                     <label class="form-label" for="state">State / Province</label>
                                     <input type="text" class="form-control call" id="shipping_state" name="shipping_state">
                                 </div>
-
+                                <div class="col-12 mb-2">
+                                    <label class="form-label" for="shipping_country">Shipping Country</label>
+                                    <select class="form-select ship_country call" id="country" name="shipping_country" disabled>
+                                        @foreach($data['country'] as $key => $value)
+                                            @if($data['shipping_country_id'] == $value->id)
+                                                <option code="{{$value->code}}" value="{{$value->id}}" selected>{{$value->name}} </option>
+                                            @else
+                                                <option code="{{$value->code}}" value="{{$value->id}}">{{$value->name}} </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
                                 @if(isset($data['Emailgift']) && $data['Emailgift'] != null)
 
                                 <input type="hidden" name="shipping_phonenumber" value="{{$data['customer_phone_number']}}">
@@ -219,12 +230,12 @@
                             <div class="row gx-2 py-4">
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="tnc" id="tnc">
+                                        <input class="form-check-input check_uncheck_radio" type="radio" name="tnc" id="tnc">
                                         <label class="form-check-label" for="terms">Accept our <a class="link-blue" href="https://www.thecultivist.com/legals/terms-of-use">Terms & Conditions</a></label><br>
                                         <span id="tnc_msg"></span>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="tnc_p" id="tnc_p" value="yes">
+                                        <input class="form-check-input check_uncheck_radio" type="radio" name="tnc_p" id="tnc_p" value="yes">
                                         <label class="form-check-label" for="privacy">Accept our <a class="link-blue" href="https://www.thecultivist.com/legals/member-agreement">Member Agreement & Privacy/ Notice Policy</a></label><br>
                                         <span id="tnc_p_msg"></span>
                                     </div>
@@ -318,25 +329,29 @@
 
             $('.card-button').on('click', async (e) => {
                 e.preventDefault();
-                const {
-                    setupIntent,
-                    error
-                } = await stripe.confirmCardSetup(
-                    clientSecret, {
-                        payment_method: {
-                            card: card,
-                            billing_details: {
-                                name: cardHolderName.value
+                var isFormValid = validateCheckoutForm();
+                if (isFormValid) {
+                    $('.loader').show();
+                    const {
+                        setupIntent,
+                        error
+                    } = await stripe.confirmCardSetup(
+                        clientSecret, {
+                            payment_method: {
+                                card: card,
+                                billing_details: {
+                                    name: cardHolderName.value
+                                }
                             }
                         }
+                    );
+                    if (error) {
+                        var errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = error.message;
+                        $('.loader').hide();
+                    } else {
+                        paymentMethodHandler(setupIntent.payment_method);
                     }
-                );
-                if (error) {
-                    var errorElement = document.getElementById('card-errors');
-                    errorElement.textContent = error.message;
-                    validateCheckoutForm();
-                } else {
-                    paymentMethodHandler(setupIntent.payment_method);
                 }
             });
 
@@ -444,6 +459,17 @@
                 return $('#checkout_form').valid();
             }
         }
+
+        $('.check_uncheck_radio').click(function() {
+
+            var attr = $(this).attr('checked');
+
+            if (typeof attr !== 'undefined' && attr !== false) {
+                $(this).removeAttr("checked");
+            } else {
+                $(this).attr("checked", 'true');
+            }
+        });
     })
 </script>
 @endpush
