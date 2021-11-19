@@ -185,7 +185,7 @@ class TestController extends Controller
         $data['stripe_key'] = in_array($request->shipping_country_code, $eurGbpCountries) ? Config::get('services.stripe.EUR_GBP_key') : Config::get('services.stripe.key');
         if ($http_status == Config::get('constants.status_error_code')) {
             Session()->flash('activeTab', 'individual');
-            return redirect(url()->previous() . '#individual')->with('error', $l_id['message']);
+            return redirect('/')->with('error', $l_id['message']);
             // return redirect('/')->withInput(['tabOpen' => 'individual'])->with('error', $l_id['message']);
         }
         return view('checkout1', compact('data'));
@@ -451,7 +451,7 @@ class TestController extends Controller
 
         if ($http_status == Config::get('constants.status_error_code')) {
             Session()->flash('activeTab', 'dual');
-            return redirect(url()->previous() . '#dual')->with('dual-error', $d_response['message']);
+            return redirect('/')->with('dual-error', $d_response['message']);
             // return redirect('/')->with('dual-error', $d_response['message']);
         }
 
@@ -731,7 +731,7 @@ class TestController extends Controller
         $http_status = $giftLeadResponse['http_status'];
         if ($http_status == Config::get('constants.status_error_code')) {
             Session()->flash('activeTab', 'gifting');
-            return redirect(url()->previous() . '#gifting')->with('gift-error', $gift_lead_response['message']);
+            return redirect('/')->with('gift-error', $gift_lead_response['message']);
             // return redirect('/')->with('dual-error', $gift_lead_response['message']);
         }
 

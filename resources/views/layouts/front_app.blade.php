@@ -22,6 +22,11 @@
     .error {
         color: red;
     }
+    button.close.close-alert-message.fa.fa-window-close {
+        position: absolute;
+        right: 10px;
+        top: 5px;
+    }
 </style>
 <style>
     .StripeElement {
