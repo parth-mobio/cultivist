@@ -60,17 +60,17 @@
                                                 <span class="text-danger">{{ $errors->first('phone_number') }}</span>
                                             </div>
                                             <div class="col-12 mb-2">
-                                                <label class="form-label" for="shipping_country">Country</label>
+                                                <label class="form-label" for="shipping_country">Shipping Country</label>
                                                 <select class="form-select ship_country call" id="country" name="shipping_country">
                                                     <option selected disabled>Select Country</option>
                                                     <optgroup label="Frequently Used">
                                                         @foreach($data['frequently'] as $key=> $val)
-                                                        <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                        <option code="{{$val->code}}" value="{{$val->id}}">{{$val->name}} </option>
                                                         @endforeach
                                                     </optgroup>
                                                     <optgroup label="All Country">
                                                         @foreach($data['country'] as $key => $value)
-                                                        <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                        <option code="{{$value->code}}" value="{{$value->id}}">{{$value->name}} </option>
                                                         @endforeach
                                                     </optgroup>
 
@@ -197,17 +197,17 @@
                                                 <span class="text-danger">{{ $errors->first('phone_number') }}</span>
                                             </div>
                                             <div class="col-12 mb-2">
-                                                <label class="form-label" for="shipping_country">Country</label>
-                                                <select class="form-select ship_country_d call" id="country" name="shipping_country">
+                                                <label class="form-label" for="shipping_country_dual">Shipping Country</label>
+                                                <select class="form-select ship_country_d call" id="shipping_country_dual" name="shipping_country_dual">
                                                     <option selected disabled>Select Country</option>
                                                     <optgroup label="Frequently Used">
                                                         @foreach($data['frequently'] as $key=> $val)
-                                                        <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                        <option code="{{$val->code}}" value="{{$val->id}}">{{$val->name}} </option>
                                                         @endforeach
                                                     </optgroup>
                                                     <optgroup label="All Country">
                                                         @foreach($data['country'] as $key => $value)
-                                                        <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                        <option code="{{$value->code}}" value="{{$value->id}}">{{$value->name}} </option>
                                                         @endforeach
                                                     </optgroup>
 
@@ -379,17 +379,17 @@
                                                     <span class="text-danger">{{ $errors->first('phone_number')  }}</span>
                                                 </div>
                                                 <div class="col-12 mb-2">
-                                                    <label class="form-label" for="shipping_country">Country</label>
-                                                    <select class="form-select ship_country_g call" id="country" name="shipping_country">
+                                                    <label class="form-label" for="shipping_country_gift">Shipping Country</label>
+                                                    <select class="form-select ship_country_g call" id="shipping_country_gift" name="shipping_country_gift">
                                                         <option selected disabled>Select Country</option>
                                                         <optgroup label="Frequently Used">
                                                             @foreach($data['frequently'] as $key=> $val)
-                                                            <option code="{{$val->code}}" value="" country_id="{{$val->id}}">{{$val->name}} </option>
+                                                            <option code="{{$val->code}}" value="{{$val->id}}">{{$val->name}} </option>
                                                             @endforeach
                                                         </optgroup>
                                                         <optgroup label="All Country">
                                                             @foreach($data['country'] as $key => $value)
-                                                            <option code="{{$value->code}}" value="" country_id="{{$value->id}}">{{$value->name}} </option>
+                                                            <option code="{{$value->code}}" value="{{$value->id}}">{{$value->name}} </option>
                                                             @endforeach
                                                         </optgroup>
 

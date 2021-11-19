@@ -518,12 +518,12 @@ class TestController extends Controller
             'billingcity' => $request->billing_city == null ? $request->shipping_city : $request->billing_city,
             'billingstate' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
             'billingzip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-            'billingcountry' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
+            'billingcountry' => $request->billing_country_name == null ? $request->shipping_country_name : $request->billing_country_name,
             'mailingstreet' => $request->shipping_address,
             'mailingcity' => $request->shipping_city,
             'mailingstate' => $request->shipping_state,
             'mailingzip'  => $request->shipping_zipcode,
-            'mailingcountry' => $request->shipping_country,
+            'mailingcountry' => $request->shipping_country_name,
             'memberfirstname' => $request->first_name_dual_member,
             'memberlastname' => $request->last_name_dual_member,
             'memberphone' => $request->phone_dual_member,
@@ -594,7 +594,7 @@ class TestController extends Controller
             'Firstnamegift' => 'required',
             'Lastnamegift' => 'required',
             'phone_number' => 'required',
-            'customer_email' => 'required|email',
+            'customer_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix',
             'customer_first_name' => 'required',
             'customer_last_name' => 'required',
             'customer_phone_number' => 'required',
@@ -613,7 +613,8 @@ class TestController extends Controller
             'customer_last_name.required'  => 'The last name is required.',
             'customer_phone_number.required' => 'The phone number is required.',
             'shipping_country_id.required' => 'Please select the shipping country.',
-            'Emailgift.regex' => 'The email id is invalid.'
+            'Emailgift.regex' => 'The email id is invalid.',
+            'customer_email.regex' => 'The email id is invalid.'
         ];
 
         $validator = Validator::make($request->all(), $validatedData, $customMessages);
@@ -805,7 +806,7 @@ class TestController extends Controller
             'billingcity' => $request->billing_city == null ? $request->shipping_city : $request->billing_city,
             'billingstate' => $request->billing_state == null ? $request->shipping_state : $request->billing_state,
             'billingzip' => $request->billing_zipcode == null ? $request->shipping_zipcode : $request->billing_zipcode,
-            'billingcountry' => $request->billing_country == null ? $request->shipping_country : $request->billing_country,
+            'billingcountry' => $request->billing_country_name == null ? $request->shipping_country_name : $request->billing_country_name,
             'memberfirstname' => '',
             'memberlastname' => '',
             'memberphone' => '',
@@ -814,7 +815,7 @@ class TestController extends Controller
             'mailingcity' => $request->shipping_city,
             'mailingstate' => $request->shipping_state,
             'mailingzip'  => $request->shipping_zipcode,
-            'mailingcountry' => $request->shipping_country,
+            'mailingcountry' => $request->shipping_country_name,
             'chargifyproductid' => $request->product_id,
             'giftrecipientfirstname' => $request->Firstnamegift,
             'giftrecipientlastname' => $request->Lastnamegift,

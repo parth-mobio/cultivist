@@ -18,6 +18,7 @@
         justify-content: center;
         background: rgba(255, 255, 255, .7);
     }
+
     .error {
         color: red;
     }
@@ -264,7 +265,9 @@
                     },
                     phone_number: {
                         required: true,
-                        digits: true
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 13
                     },
                     shipping_country: {
                         required: true
@@ -287,7 +290,9 @@
                     },
                     phone_number: {
                         required: true,
-                        digits: true
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 13
                     },
                     detail_02_email: {
                         required: true,
@@ -302,10 +307,12 @@
                     },
                     detail_02_phone_number: {
                         required: true,
-                        digits: true
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 13
                     },
-                    shipping_country: {
-                        required: false
+                    shipping_country_dual: {
+                        required: true
                     }
                 }
             });
@@ -326,16 +333,34 @@
                     },
                     shipping_country: {
                         required: false
-                    }
-                    // Startdategift: {
-                    //     required: '#no[value="no"]:checked',
-                    //     date: true,
+                    },
+                    phone_number: {
+                        required: true,
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 13
+                    },
+                    customer_email: {
+                        required: true,
+                        email: true
+                    },
+                    customer_first_name: {
+                        required: true
+                    },
+                    customer_last_name: {
+                        required: true,
 
-                    // },
-                },
-                // messages: {
-                //     Startdategift: 'Please select a date',
-                // },
+                    },
+                    customer_phone_number: {
+                        required: true,
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 13
+                    },
+                    shipping_country_gift: {
+                        required: true
+                    }
+                }
             });
 
             //Close the alert messages in 15 seconds
@@ -389,10 +414,9 @@
 
             $('.ship_country').change(function() {
                 var shipping_country = $('.ship_country option:selected').attr('code');
-                $('.ship_country option:selected').val(shipping_country);
                 $('#contact_form').find('#shipping_country_code').val(shipping_country);
 
-                var shipping_country_id = $('.ship_country option:selected').attr('country_id');
+                var shipping_country_id = $(this).val();
                 $('#contact_form').find('#shipping_country_id').val(shipping_country_id);
 
                 setIndividualShipping(shipping_country, country);
@@ -401,11 +425,9 @@
 
             $('.ship_country_d').change(function() {
                 var shipping_country = $('.ship_country_d option:selected').attr('code');
-
-                $('.ship_country option:selected').val(shipping_country);
                 $('#dual_form').find('#shipping_country_code').val(shipping_country);
 
-                var shipping_country_id = $('.ship_country_d option:selected').attr('country_id');
+                var shipping_country_id = $(this).val();
                 $('#dual_form').find('#shipping_country_id').val(shipping_country_id);
 
                 setDualShipping(shipping_country, country);
@@ -413,10 +435,9 @@
 
             $('.ship_country_g').change(function() {
                 var shipping_country = $('.ship_country_g option:selected').attr('code');
-                $('.ship_country option:selected').val(shipping_country);
                 $('#gift_form').find('#shipping_country_code').val(shipping_country);
 
-                var shipping_country_id = $('.ship_country_g option:selected').attr('country_id');
+                var shipping_country_id = $(this).val();
                 $('#gift_form').find('#shipping_country_id').val(shipping_country_id);
 
                 setGiftShipping(shipping_country, country);
@@ -749,18 +770,6 @@
                     }
                 });
             });
-        });
-    </script>
-
-    <script type="text/javascript">
-        $('#placed').click(function() {
-            var check = $('input[name="tnc_p"]:checked').val();
-            if (check == "yes") {
-                $('.loader').show();
-                return true;
-            }
-
-
         });
     </script>
     </script>
